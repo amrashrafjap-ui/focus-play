@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FocusPlay — مشاهدة بلا تشتيت</title>
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FocusPlay" />
+  <meta name="description" content="شاهد يوتيوب بدون تشتيت — فكرة M O R A" />
+  <link rel="manifest" id="pwaManifest" />
 
   <!-- ===== Google Fonts ===== -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -736,8 +742,376 @@
     .bw-per-hr { font-size: 0.72rem; color: var(--slate-600); margin-top: 4px; font-family: var(--font-mono); }
 
     /* ============================================================
-       SECTION 11: FOOTER
+       SECTION 10B: DOWNLOAD PANEL
     ============================================================ */
+    .dl-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .dl-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 6px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--t-fast);
+      text-align: center;
+      line-height: 1.3;
+    }
+    .dl-btn:hover {
+      border-color: var(--sky-500);
+      color: var(--sky-400);
+      background: rgba(14,165,233,0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(14,165,233,0.15);
+    }
+    .dl-btn .dl-icon { font-size: 1.3rem; }
+    .dl-btn .dl-quality {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--sky-400);
+    }
+
+    .dl-command-box {
+      background: var(--slate-950);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 0.5rem;
+    }
+    .dl-command-text {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--sky-300);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      direction: ltr;
+    }
+    .dl-copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all var(--t-fast);
+      white-space: nowrap;
+    }
+    .dl-copy-btn:hover { border-color: var(--sky-500); color: var(--sky-400); }
+
+    .dl-disclaimer {
+      margin-top: 0.6rem;
+      padding: 8px 10px;
+      background: rgba(251,191,36,0.06);
+      border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 8px;
+      font-size: 0.72rem;
+      color: #fbbf24;
+      line-height: 1.5;
+    }
+
+    .dl-service-row {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .dl-service-chip {
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: var(--surface2);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all var(--t-fast);
+    }
+    .dl-service-chip:hover {
+      border-color: var(--sky-500);
+      color: var(--sky-400);
+    }
+
+    /* ============================================================
+       SECTION 10C: BANDWIDTH CALCULATOR
+    ============================================================ */
+    .bw-calc-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .bw-calc-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sky-400);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bw-calc-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .calc-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .calc-select, .calc-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color var(--t-fast);
+      -webkit-appearance: none;
+    }
+    .calc-select:focus, .calc-input:focus { border-color: var(--sky-500); }
+
+    .bw-result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .bw-result-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      transition: border-color var(--t-med);
+    }
+    .bw-result-card.highlight {
+      border-color: var(--sky-500);
+      background: rgba(14,165,233,0.07);
+    }
+    .bw-result-card .rc-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .bw-result-card .rc-value {
+      font-size: 1.15rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: var(--sky-400);
+    }
+    .bw-result-card .rc-unit {
+      font-size: 0.68rem;
+      color: var(--slate-600);
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+       SECTION 15: THEME SYSTEM
+    ============================================================ */
+    [data-theme="oled"] {
+      --slate-950: #000000; --slate-900: #0a0a0a; --slate-800: #111111;
+      --slate-700: #1a1a1a; --bg: #000; --surface: #0a0a0a; --surface2: #111111;
+    }
+    [data-theme="soft"] {
+      --slate-950: #0d1117; --slate-900: #161b22; --slate-800: #21262d;
+      --slate-700: #30363d; --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+      --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --slate-600: #94a3b8; --slate-950: #f8fafc; --slate-900: #ffffff;
+    }
+
+    /* ============================================================
+       SECTION 16: SEARCH BAR
+    ============================================================ */
+    .search-overlay {
+      position: fixed; inset: 0; z-index: 8000;
+      background: rgba(2,6,23,0.85); backdrop-filter: blur(8px);
+      display: none; align-items: flex-start; justify-content: center;
+      padding-top: 10vh;
+    }
+    .search-overlay.open { display: flex; }
+    .search-box {
+      width: 100%; max-width: 660px; margin: 0 1rem;
+      background: var(--surface); border: 1px solid var(--sky-500);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7), var(--glow);
+      animation: fadeSlideDown .25s ease;
+    }
+    .search-input-row { display: flex; gap: .75rem; margin-bottom: 1rem; }
+    .search-field {
+      flex: 1; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .8rem 1rem;
+      color: var(--text); font-family: var(--font-ui); font-size: .95rem;
+      outline: none; direction: ltr;
+    }
+    .search-field:focus { border-color: var(--sky-500); }
+    .search-results { display: flex; flex-direction: column; gap: .5rem; max-height: 340px; overflow-y: auto; }
+    .search-item {
+      display: flex; gap: .75rem; align-items: center;
+      padding: .65rem .85rem; border-radius: 10px;
+      background: var(--surface2); cursor: pointer;
+      transition: background var(--t-fast); border: 1px solid transparent;
+    }
+    .search-item:hover { border-color: var(--sky-500); background: rgba(14,165,233,.07); }
+    .search-thumb { width: 80px; height: 45px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--slate-700); }
+    .search-info { flex: 1; min-width: 0; }
+    .search-title { font-size: .84rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-channel { font-size: .74rem; color: var(--muted); margin-top: 2px; }
+    .search-duration { font-size: .7rem; font-family: var(--font-mono); color: var(--sky-400); }
+    .search-empty { text-align: center; color: var(--muted); padding: 1.5rem; font-size: .85rem; }
+    .search-loading { text-align: center; padding: 1.5rem; }
+
+    /* ============================================================
+       SECTION 17: SPEED CONTROL
+    ============================================================ */
+    .speed-panel {
+      display: none; position: absolute; top: calc(100% + 8px); left: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: .75rem; z-index: 500;
+      box-shadow: var(--shadow); min-width: 180px;
+    }
+    .speed-panel.open { display: block; }
+    .speed-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
+    .speed-chip {
+      padding: 7px 4px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface2); color: var(--muted);
+      font-family: var(--font-mono); font-size: .78rem; font-weight: 700;
+      cursor: pointer; text-align: center; transition: all var(--t-fast);
+    }
+    .speed-chip:hover { border-color: var(--sky-500); color: var(--sky-400); }
+    .speed-chip.active { background: rgba(14,165,233,.15); border-color: var(--sky-500); color: var(--sky-400); }
+    .speed-btn-wrap { position: relative; }
+
+    /* ============================================================
+       SECTION 18: HISTORY & BOOKMARKS
+    ============================================================ */
+    .history-item {
+      display: flex; align-items: center; gap: .7rem;
+      padding: 8px 10px; background: var(--surface2);
+      border-radius: 8px; cursor: pointer; border: 1px solid transparent;
+      transition: all var(--t-fast); margin-bottom: .4rem;
+    }
+    .history-item:hover { border-color: var(--sky-500); background: rgba(14,165,233,.06); }
+    .history-thumb { width: 56px; height: 32px; border-radius: 4px; object-fit: cover; background: var(--slate-700); flex-shrink: 0; }
+    .history-info { flex: 1; min-width: 0; }
+    .history-title { font-size: .78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-time { font-size: .68rem; color: var(--muted); font-family: var(--font-mono); }
+    .history-del { background: none; border: none; color: var(--slate-600); cursor: pointer; font-size: .85rem; padding: 2px 4px; transition: color var(--t-fast); }
+    .history-del:hover { color: #f87171; }
+
+    .bookmark-item {
+      display: flex; align-items: center; gap: .6rem;
+      padding: 8px 10px; background: var(--surface2);
+      border-right: 3px solid var(--sky-400); border-radius: 8px;
+      cursor: pointer; transition: all var(--t-fast); margin-bottom: .4rem;
+    }
+    .bookmark-item:hover { background: rgba(14,165,233,.07); }
+    .bookmark-ts { font-family: var(--font-mono); font-size: .72rem; color: var(--sky-400); flex-shrink: 0; }
+    .bookmark-label { flex: 1; font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bookmark-del { background: none; border: none; color: var(--slate-600); cursor: pointer; font-size: .85rem; padding: 2px 4px; transition: color var(--t-fast); }
+    .bookmark-del:hover { color: #f87171; }
+
+    /* ============================================================
+       SECTION 19: SLEEP TIMER
+    ============================================================ */
+    .sleep-panel {
+      display: none; position: absolute; top: calc(100% + 8px); left: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem; z-index: 500;
+      box-shadow: var(--shadow); min-width: 200px;
+    }
+    .sleep-panel.open { display: block; }
+    .sleep-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem; }
+    .sleep-chip {
+      padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface2); color: var(--muted);
+      font-family: var(--font-ui); font-size: .76rem; font-weight: 600;
+      cursor: pointer; transition: all var(--t-fast);
+    }
+    .sleep-chip:hover { border-color: var(--sky-500); color: var(--sky-400); }
+    .sleep-chip.active { background: rgba(14,165,233,.12); border-color: var(--sky-500); color: var(--sky-400); }
+    .sleep-countdown {
+      text-align: center; font-family: var(--font-mono); font-size: 1.3rem;
+      font-weight: 700; color: var(--sky-400); padding: .5rem 0;
+      display: none;
+    }
+    .sleep-btn-wrap { position: relative; }
+
+    /* ============================================================
+       SECTION 20: THEME SWITCHER & SHORTCUTS PANEL
+    ============================================================ */
+    .theme-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+    .theme-chip {
+      padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface2); color: var(--muted);
+      font-size: .78rem; font-weight: 600; cursor: pointer;
+      transition: all var(--t-fast); font-family: var(--font-ui);
+    }
+    .theme-chip:hover { border-color: var(--sky-500); color: var(--sky-400); }
+    .theme-chip.active { background: rgba(14,165,233,.12); border-color: var(--sky-500); color: var(--sky-400); }
+
+    .shortcuts-grid { display: grid; grid-template-columns: auto 1fr; gap: .35rem .75rem; margin-top: .5rem; align-items: center; }
+    .shortcut-key {
+      font-family: var(--font-mono); font-size: .72rem; padding: 3px 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 5px; color: var(--sky-400); white-space: nowrap;
+    }
+    .shortcut-desc { font-size: .78rem; color: var(--muted); }
+
+    /* ============================================================
+       SECTION 21: SETTINGS PANEL (bottom of sidebar)
+    ============================================================ */
+    .settings-panel {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 320px;
+      background: var(--surface); border-left: 1px solid var(--border);
+      z-index: 7000; transform: translateX(-100%);
+      transition: transform var(--t-med); overflow-y: auto; padding: 1.5rem;
+    }
+    .settings-panel.open { transform: translateX(0); }
+    .settings-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 6999;
+      display: none; backdrop-filter: blur(4px);
+    }
+    .settings-overlay.open { display: block; }
+    .settings-section { margin-bottom: 1.5rem; }
+    .settings-label { font-size: .75rem; font-weight: 700; color: var(--sky-400); letter-spacing: .8px; text-transform: uppercase; margin-bottom: .6rem; }
+
+  
     footer {
       position: relative;
       z-index: 1;
@@ -860,6 +1234,8 @@
   <ul class="nav-links" id="navLinks">
     <li><a href="#player-section">المشغّل</a></li>
     <li><a href="#bandwidth-section">استهلاك النت</a></li>
+    <li><a href="#" onclick="openSearch();return false;">🔍 بحث</a></li>
+    <li><a href="#" onclick="openSettings();return false;">⚙️ إعدادات</a></li>
     <li><a href="#player-section" class="nav-btn">ابدأ المشاهدة</a></li>
   </ul>
 
@@ -932,13 +1308,42 @@
       <p id="videoMeta">يوتيوب · مشاهدة نظيفة</p>
     </div>
     <div class="player-controls">
-      <button class="ctrl-btn" id="theaterBtn" onclick="toggleTheater()">
-        🖥️ وضع السينما
-      </button>
-      <button class="ctrl-btn" onclick="scrollToTop()">
-        🔗 رابط جديد
-      </button>
+      <button class="ctrl-btn" onclick="openSearch()">🔍 بحث</button>
+
+      <!-- Speed Control -->
+      <div class="speed-btn-wrap">
+        <button class="ctrl-btn" id="speedBtn" onclick="toggleSpeedPanel()">
+          ⚡ <span id="speedLabel">1×</span>
+        </button>
+        <div class="speed-panel" id="speedPanel">
+          <div class="speed-grid" id="speedGrid"></div>
+        </div>
+      </div>
+
+      <!-- Sleep Timer -->
+      <div class="sleep-btn-wrap">
+        <button class="ctrl-btn" id="sleepBtn" onclick="toggleSleepPanel()">⏰ مؤقت</button>
+        <div class="sleep-panel" id="sleepPanel">
+          <div class="sleep-chips" id="sleepChips"></div>
+          <div class="sleep-countdown" id="sleepCountdown"></div>
+          <button class="note-action-btn" onclick="cancelSleepTimer()" style="width:100%;margin-top:.25rem;">إلغاء المؤقت</button>
+        </div>
+      </div>
+
+      <button class="ctrl-btn" onclick="addBookmark()">🔖 إشارة</button>
+      <button class="ctrl-btn" id="pipBtn" onclick="togglePiP()">⧉ عائمة</button>
+      <button class="ctrl-btn" onclick="toggleDownloadPanel()">⬇️ تنزيل</button>
+      <button class="ctrl-btn" id="theaterBtn" onclick="toggleTheater()">🖥️ سينما</button>
+      <button class="ctrl-btn" onclick="openSettings()">⚙️</button>
+      <button class="ctrl-btn" onclick="scrollToTop()">🔗 جديد</button>
     </div>
+  </div>
+
+  <!-- MEDIA SESSION STATUS BAR -->
+  <div id="mediaBar" style="display:none;align-items:center;gap:12px;padding:10px 16px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.25);border-radius:12px;font-size:0.82rem;color:var(--sky-400);margin-bottom:0.5rem;">
+    <span style="animation:pulse 2s infinite;font-size:1rem;">🎵</span>
+    <span id="mediaBarText">مشغّل الخلفية نشط — الفيديو يعمل حتى بعد قفل الشاشة</span>
+    <span style="margin-right:auto;font-size:0.72rem;color:var(--slate-600);" id="mediaBarTitle"></span>
   </div>
 
   <div class="player-layout" id="playerLayout">
@@ -1019,6 +1424,55 @@
         </div>
       </div>
 
+      <!-- DOWNLOAD CARD -->
+      <div class="sidebar-card" id="downloadCard" style="display:none;">
+        <div class="card-header">
+          <div class="dot"></div>
+          تنزيل الفيديو
+        </div>
+
+        <!-- Quality Buttons -->
+        <div class="dl-grid" id="dlGrid">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- yt-dlp command box -->
+        <div class="dl-command-box" id="dlCommandBox" style="display:none;">
+          <span class="dl-command-text" id="dlCommandText"></span>
+          <button class="dl-copy-btn" onclick="copyDlCommand()">نسخ</button>
+        </div>
+
+        <!-- External download services -->
+        <div class="dl-service-row">
+          <a class="dl-service-chip" id="cobaltLink" href="#" target="_blank" rel="noopener">🌐 Cobalt</a>
+          <a class="dl-service-chip" id="y2mateLink" href="#" target="_blank" rel="noopener">⬇ Y2Mate</a>
+          <a class="dl-service-chip" id="ssyoutLink" href="#" target="_blank" rel="noopener">🔗 SaveFrom</a>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="dl-disclaimer">
+          ⚠️ التنزيل للاستخدام الشخصي فقط. احرص على احترام حقوق صاحب المحتوى وسياسات يوتيوب.
+        </div>
+      </div>
+
+      <!-- BOOKMARKS CARD -->
+      <div class="sidebar-card" id="bookmarksCard" style="display:none;">
+        <div class="card-header"><div class="dot"></div>إشارات الفيديو</div>
+        <div id="bookmarksList"><p class="notes-empty">لا توجد إشارات بعد — اضغط 🔖 أثناء التشغيل</p></div>
+        <div class="notes-actions" style="margin-top:.6rem;">
+          <button class="note-action-btn" onclick="clearAllBookmarks()" style="color:#f87171;">🗑️ مسح الكل</button>
+        </div>
+      </div>
+
+      <!-- WATCH HISTORY CARD -->
+      <div class="sidebar-card" id="historyCard" style="display:none;">
+        <div class="card-header"><div class="dot"></div>سجل المشاهدة</div>
+        <div id="historyList"><p class="notes-empty">لا يوجد سجل بعد</p></div>
+        <div class="notes-actions" style="margin-top:.6rem;">
+          <button class="note-action-btn" onclick="clearHistory()" style="color:#f87171;">🗑️ مسح السجل</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1033,18 +1487,158 @@
   </div>
 
   <div class="bw-grid" id="bwGrid"></div>
+
+  <!-- ===== INTERACTIVE BANDWIDTH CALCULATOR ===== -->
+  <div class="bw-calc-wrapper">
+    <div class="bw-calc-title">🧮 حاسبة استهلاك الإنترنت</div>
+    <div class="bw-calc-form">
+      <div class="calc-field">
+        <label>جودة الفيديو</label>
+        <select class="calc-select" id="calcQuality" onchange="calcBandwidth()">
+          <option value="0.5">144p — توفير البيانات</option>
+          <option value="1.0">240p</option>
+          <option value="2.5">360p</option>
+          <option value="5.0">480p</option>
+          <option value="11" selected>720p HD</option>
+          <option value="22">1080p Full HD</option>
+          <option value="45">1440p 2K</option>
+          <option value="90">4K Ultra HD</option>
+        </select>
+      </div>
+      <div class="calc-field">
+        <label>مدة المشاهدة</label>
+        <input class="calc-input" type="number" id="calcMins" value="60" min="1" max="1440" oninput="calcBandwidth()" placeholder="دقيقة" />
+      </div>
+      <div class="calc-field">
+        <label>عدد الأجهزة / المستخدمين</label>
+        <input class="calc-input" type="number" id="calcDevices" value="1" min="1" max="20" oninput="calcBandwidth()" />
+      </div>
+      <div class="calc-field">
+        <label>سعر GB (جنيه/دولار)</label>
+        <input class="calc-input" type="number" id="calcPrice" value="5" min="0" step="0.1" oninput="calcBandwidth()" />
+      </div>
+    </div>
+    <div class="bw-result-grid" id="calcResults">
+      <!-- Filled by JS -->
+    </div>
+  </div>
 </section>
 
 <!-- ============================================================
      FOOTER
 ============================================================ -->
 <footer>
-  <span>🔵 FocusPlay &copy; 2024 — بُني بـ ❤️ لمحبي التركيز</span>
+  <span>🔵 FocusPlay &copy; 2026 — بُني بـ ❤️ لمحبي التركيز · فكرة <strong style="color:var(--sky-400)">M O R A</strong></span>
   <span>·</span>
   <a href="#home">العودة للأعلى</a>
   <span>·</span>
   <span>YouTube IFrame API</span>
 </footer>
+
+<!-- ============================================================
+     SEARCH OVERLAY
+============================================================ -->
+<div class="search-overlay" id="searchOverlay" onclick="handleSearchOverlayClick(event)">
+  <div class="search-box">
+    <div class="search-input-row">
+      <input type="search" class="search-field" id="searchField"
+        placeholder="ابحث عن فيديو يوتيوب بالاسم…"
+        oninput="debounceSearch(this.value)"
+        onkeydown="if(event.key==='Escape')closeSearch()" />
+      <button class="play-btn" style="padding:.8rem 1.2rem;" onclick="closeSearch()">✕</button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-empty">اكتب للبحث عن فيديو…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SETTINGS PANEL
+============================================================ -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem;font-weight:700;">⚙️ الإعدادات</h3>
+    <button onclick="closeSettings()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;">✕</button>
+  </div>
+
+  <!-- Theme -->
+  <div class="settings-section">
+    <div class="settings-label">🎨 الثيم</div>
+    <div class="theme-chips">
+      <button class="theme-chip active" onclick="setTheme('dark',this)">🌑 Dark</button>
+      <button class="theme-chip" onclick="setTheme('oled',this)">⚫ OLED</button>
+      <button class="theme-chip" onclick="setTheme('soft',this)">🌌 Soft</button>
+      <button class="theme-chip" onclick="setTheme('light',this)">☀️ Light</button>
+    </div>
+  </div>
+
+  <!-- History toggle -->
+  <div class="settings-section">
+    <div class="settings-label">📚 سجل المشاهدة</div>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+      <button class="note-action-btn" onclick="toggleHistoryCard()">👁️ عرض / إخفاء</button>
+      <button class="note-action-btn" onclick="clearHistory()" style="color:#f87171;">🗑️ مسح</button>
+    </div>
+  </div>
+
+  <!-- Bookmarks toggle -->
+  <div class="settings-section">
+    <div class="settings-label">🔖 الإشارات</div>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+      <button class="note-action-btn" onclick="toggleBookmarksCard()">👁️ عرض / إخفاء</button>
+      <button class="note-action-btn" onclick="clearAllBookmarks()" style="color:#f87171;">🗑️ مسح</button>
+    </div>
+  </div>
+
+  <!-- Export Notes PDF -->
+  <div class="settings-section">
+    <div class="settings-label">📄 تصدير الملاحظات</div>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap;">
+      <button class="note-action-btn save" onclick="exportNotesPDF()">📄 PDF</button>
+      <button class="note-action-btn" onclick="exportNotes()">📝 TXT</button>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts -->
+  <div class="settings-section">
+    <div class="settings-label">⌨️ اختصارات لوحة المفاتيح</div>
+    <div class="shortcuts-grid" style="margin-top:.5rem;">
+      <span class="shortcut-key">Space</span><span class="shortcut-desc">تشغيل / إيقاف</span>
+      <span class="shortcut-key">← →</span><span class="shortcut-desc">تقديم / ترجيع 10 ثوان</span>
+      <span class="shortcut-key">↑ ↓</span><span class="shortcut-desc">رفع / خفض الصوت</span>
+      <span class="shortcut-key">F</span><span class="shortcut-desc">ملء الشاشة</span>
+      <span class="shortcut-key">M</span><span class="shortcut-desc">كتم / رفع الصوت</span>
+      <span class="shortcut-key">N</span><span class="shortcut-desc">ملاحظة جديدة</span>
+      <span class="shortcut-key">B</span><span class="shortcut-desc">إضافة إشارة</span>
+      <span class="shortcut-key">S</span><span class="shortcut-desc">فتح البحث</span>
+      <span class="shortcut-key">Esc</span><span class="shortcut-desc">إغلاق القوائم</span>
+      <span class="shortcut-key">Ctrl+S</span><span class="shortcut-desc">حفظ ملاحظة</span>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--slate-600);text-align:center;">
+    FocusPlay © 2026 · فكرة <strong style="color:var(--sky-400)">M O R A</strong>
+  </div>
+</div>
+
+<!-- ============================================================
+     PWA INSTALL BANNER
+============================================================ -->
+<div id="installBanner" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:9000;background:var(--slate-800);border:1px solid var(--sky-500);border-radius:16px;padding:1rem 1.25rem;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+  <div style="font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:6px;">📲 نزّل التطبيق</div>
+  <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;line-height:1.6;">نزّل FocusPlay على هاتفك — يشتغل بدون إنترنت ويفضل شغّال وقت قفل الشاشة</div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="installPWA()" style="flex:1;padding:8px;background:var(--sky-600);border:none;border-radius:8px;color:#fff;font-family:var(--font-ui);font-size:0.82rem;font-weight:700;cursor:pointer;">تنزيل ⬇</button>
+    <button onclick="document.getElementById('installBanner').style.display='none'" style="padding:8px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--font-ui);font-size:0.82rem;cursor:pointer;">لاحقاً</button>
+  </div>
+</div>
+
+<!-- HIDDEN AUDIO — keeps audio session alive for background playback -->
+<audio id="bgAudio" loop style="display:none;" preload="none">
+  <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA" type="audio/wav" />
+</audio>
 
 <!-- ============================================================
      TOAST CONTAINER
@@ -1233,6 +1827,10 @@ function loadVideo() {
   // Show player section with animation
   const section = document.getElementById('player-section');
   section.classList.add('visible');
+
+  // Show download card and refresh it
+  document.getElementById('downloadCard').style.display = '';
+  renderDownloadCard();
 
   // Smooth scroll to player
   setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
@@ -1558,12 +2156,1037 @@ document.querySelectorAll('.bw-card, .sidebar-card').forEach(el => {
 
 
 /* ============================================================
-     JAVASCRIPT — SECTION G: INIT
+     JAVASCRIPT — SECTION H: DOWNLOAD PANEL
+============================================================ */
+
+/* ---------------------------------------------------------------
+   H1. Download quality options
+   Links open yt-dlp via protocol or show command to copy
+--------------------------------------------------------------- */
+const dlQualities = [
+  { label: '4K',    icon: '🎬', format: 'bestvideo[height<=2160]+bestaudio/best', tag: '2160p' },
+  { label: '1080p', icon: '🖥️', format: 'bestvideo[height<=1080]+bestaudio/best', tag: '1080p' },
+  { label: '720p',  icon: '📺', format: 'bestvideo[height<=720]+bestaudio/best',  tag: '720p'  },
+  { label: '480p',  icon: '📱', format: 'bestvideo[height<=480]+bestaudio/best',  tag: '480p'  },
+  { label: 'MP3',   icon: '🎵', format: 'bestaudio/best --extract-audio --audio-format mp3', tag: 'صوت فقط' },
+  { label: 'أفضل',  icon: '⭐', format: 'best',                                   tag: 'تلقائي' },
+];
+
+/* ---------------------------------------------------------------
+   H2. Toggle download panel visibility
+--------------------------------------------------------------- */
+function toggleDownloadPanel() {
+  const card = document.getElementById('downloadCard');
+  const isVisible = card.style.display !== 'none';
+  card.style.display = isVisible ? 'none' : '';
+  if (!isVisible) renderDownloadCard();
+}
+
+/* ---------------------------------------------------------------
+   H3. Render download card buttons
+--------------------------------------------------------------- */
+function renderDownloadCard() {
+  if (!currentVideoId) {
+    showToast('⚠️ حمّل فيديو أولاً', 'error');
+    document.getElementById('downloadCard').style.display = 'none';
+    return;
+  }
+
+  const ytUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
+
+  // Render quality buttons
+  document.getElementById('dlGrid').innerHTML = dlQualities.map((q, i) => `
+    <button class="dl-btn" onclick="selectDlQuality(${i})">
+      <span class="dl-icon">${q.icon}</span>
+      <span>${q.label}</span>
+      <span class="dl-quality">${q.tag}</span>
+    </button>
+  `).join('');
+
+  // Update external service links
+  document.getElementById('cobaltLink').href = `https://cobalt.tools/?url=${encodeURIComponent(ytUrl)}`;
+  document.getElementById('y2mateLink').href = `https://www.y2mate.com/youtube/${currentVideoId}`;
+  document.getElementById('ssyoutLink').href = `https://en.savefrom.net/#url=${encodeURIComponent(ytUrl)}`;
+}
+
+/* ---------------------------------------------------------------
+   H4. Select quality → show yt-dlp command
+--------------------------------------------------------------- */
+function selectDlQuality(idx) {
+  const q = dlQualities[idx];
+  const ytUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
+  const cmd = `yt-dlp -f "${q.format}" "${ytUrl}"`;
+
+  document.getElementById('dlCommandText').textContent = cmd;
+  document.getElementById('dlCommandBox').style.display = 'flex';
+
+  // Highlight selected button
+  document.querySelectorAll('.dl-btn').forEach((btn, i) => {
+    btn.style.borderColor = i === idx ? 'var(--sky-500)' : '';
+    btn.style.color       = i === idx ? 'var(--sky-400)' : '';
+    btn.style.background  = i === idx ? 'rgba(14,165,233,0.1)' : '';
+  });
+
+  showToast(`📋 أمر جاهز للنسخ — ${q.label}`, 'success');
+}
+
+/* ---------------------------------------------------------------
+   H5. Copy yt-dlp command to clipboard
+--------------------------------------------------------------- */
+function copyDlCommand() {
+  const text = document.getElementById('dlCommandText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ تم نسخ الأمر!', 'success');
+  }).catch(() => {
+    // Fallback for HTTP environments
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✅ تم نسخ الأمر!', 'success');
+  });
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION I: BANDWIDTH CALCULATOR
+============================================================ */
+
+/* ---------------------------------------------------------------
+   I1. Calculate and render results dynamically
+--------------------------------------------------------------- */
+function calcBandwidth() {
+  const mbPerMin  = parseFloat(document.getElementById('calcQuality').value) || 11;
+  const mins      = parseFloat(document.getElementById('calcMins').value)    || 60;
+  const devices   = parseInt(document.getElementById('calcDevices').value)   || 1;
+  const pricePerGb= parseFloat(document.getElementById('calcPrice').value)   || 5;
+
+  const totalMb   = mbPerMin * mins * devices;
+  const totalGb   = totalMb / 1024;
+  const totalKbps = (mbPerMin * 1024 * 8) / 60; // kbps needed per device
+  const totalCost = totalGb * pricePerGb;
+
+  const results = [
+    { label: 'إجمالي MB',      value: totalMb.toFixed(1),    unit: 'ميجابايت',   highlight: false },
+    { label: 'إجمالي GB',      value: totalGb.toFixed(2),    unit: 'جيجابايت',   highlight: true  },
+    { label: 'سرعة مطلوبة',   value: totalKbps.toFixed(0),  unit: 'Kbps/جهاز',  highlight: false },
+    { label: 'إجمالي الأجهزة', value: (totalKbps * devices).toFixed(0), unit: 'Kbps إجمالي', highlight: false },
+    { label: 'التكلفة التقريبية', value: totalCost.toFixed(2), unit: 'وحدة عملة', highlight: true },
+    { label: 'دقائق المشاهدة', value: mins,                  unit: 'دقيقة',      highlight: false },
+  ];
+
+  document.getElementById('calcResults').innerHTML = results.map(r => `
+    <div class="bw-result-card ${r.highlight ? 'highlight' : ''}">
+      <div class="rc-label">${r.label}</div>
+      <div class="rc-value">${r.value}</div>
+      <div class="rc-unit">${r.unit}</div>
+    </div>
+  `).join('');
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION J: PICTURE-IN-PICTURE (PiP)
+============================================================ */
+
+/* ---------------------------------------------------------------
+   J1. Toggle Picture-in-Picture mode
+   Uses the official PiP API on the iframe element
+--------------------------------------------------------------- */
+async function togglePiP() {
+  const btn = document.getElementById('pipBtn');
+
+  // Check browser support
+  if (!document.pictureInPictureEnabled) {
+    showToast('⚠️ متصفحك لا يدعم نافذة عائمة — جرّب Chrome أو Edge', 'error');
+    return;
+  }
+
+  try {
+    // If already in PiP, exit it
+    if (document.pictureInPictureElement) {
+      await document.exitPictureInPicture();
+      btn.textContent = '⧉ نافذة عائمة';
+      btn.classList.remove('active');
+      showToast('↩️ تم إغلاق النافذة العائمة', 'success');
+      return;
+    }
+
+    // Get the iframe element rendered by YT API
+    const iframe = document.querySelector('#yt-player iframe') ||
+                   document.getElementById('yt-player');
+
+    if (!iframe) {
+      showToast('⚠️ حمّل فيديو أولاً', 'error');
+      return;
+    }
+
+    // PiP works on <video> elements — we need to find/create one
+    // Strategy: create a canvas+video mirror of the iframe content
+    // Since YT iframe blocks direct video access, we use a workaround:
+    // create a MediaStream from the iframe and pipe to a video element
+
+    await activatePiPWithProxy(iframe);
+
+  } catch (err) {
+    console.warn('PiP error:', err);
+    showToast('⚠️ ' + (err.message || 'فشل تفعيل النافذة العائمة'), 'error');
+  }
+}
+
+/* ---------------------------------------------------------------
+   J2. PiP Proxy — captures iframe via captureStream
+--------------------------------------------------------------- */
+async function activatePiPWithProxy(iframe) {
+  const btn = document.getElementById('pipBtn');
+
+  // Create hidden canvas to mirror video
+  let pipVideo = document.getElementById('pipVideoMirror');
+  if (!pipVideo) {
+    pipVideo = document.createElement('video');
+    pipVideo.id = 'pipVideoMirror';
+    pipVideo.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;';
+    pipVideo.muted = false;
+    pipVideo.autoplay = true;
+    document.body.appendChild(pipVideo);
+  }
+
+  try {
+    // Try captureStream on the iframe's document
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    const iframeVideo = iframeDoc?.querySelector('video');
+
+    if (iframeVideo) {
+      // Direct access to the video element inside iframe
+      const stream = iframeVideo.captureStream ? iframeVideo.captureStream() : null;
+      if (stream) {
+        pipVideo.srcObject = stream;
+        await pipVideo.play();
+        await pipVideo.requestPictureInPicture();
+        btn.textContent = '✕ أغلق العائمة';
+        btn.classList.add('active');
+        showToast('⧉ الفيديو الآن في نافذة عائمة!', 'success');
+
+        pipVideo.addEventListener('leavepictureinpicture', () => {
+          btn.textContent = '⧉ نافذة عائمة';
+          btn.classList.remove('active');
+        }, { once: true });
+        return;
+      }
+    }
+  } catch (e) { /* iframe cross-origin blocked */ }
+
+  // Fallback: guide user to use browser native PiP on the video
+  showToast('💡 اضغط كليك يمين على الفيديو → نافذة عائمة', 'success');
+  btn.textContent = '⧉ نافذة عائمة';
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION K: MEDIA SESSION API
+     (شاشة القفل + أزرار التحكم من خارج التطبيق)
+============================================================ */
+
+let mediaSessionActive = false;
+let currentVideoTitle  = 'FocusPlay';
+let bgAudioCtx         = null;   // AudioContext for keep-alive
+
+/* ---------------------------------------------------------------
+   K1. Activate MediaSession — call when video starts playing
+--------------------------------------------------------------- */
+function activateMediaSession(title = 'FocusPlay', author = 'YouTube') {
+  if (!('mediaSession' in navigator)) return;
+
+  currentVideoTitle = title;
+
+  // Set now-playing metadata — shows on lock screen
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title:  title,
+    artist: author,
+    album:  'FocusPlay — بدون تشتيت',
+    artwork: [
+      { src: `https://img.youtube.com/vi/${currentVideoId}/mqdefault.jpg`,  sizes: '320x180', type: 'image/jpeg' },
+      { src: `https://img.youtube.com/vi/${currentVideoId}/hqdefault.jpg`,  sizes: '480x360', type: 'image/jpeg' },
+      { src: `https://img.youtube.com/vi/${currentVideoId}/maxresdefault.jpg`, sizes: '1280x720', type: 'image/jpeg' },
+    ],
+  });
+
+  // Register hardware button handlers (earphones, lock screen)
+  navigator.mediaSession.setActionHandler('play',         () => { player?.playVideo();  updateMediaState('playing'); });
+  navigator.mediaSession.setActionHandler('pause',        () => { player?.pauseVideo(); updateMediaState('paused');  });
+  navigator.mediaSession.setActionHandler('stop',         () => { player?.stopVideo();  updateMediaState('none');    });
+  navigator.mediaSession.setActionHandler('seekbackward', () => {
+    const t = player?.getCurrentTime() || 0;
+    player?.seekTo(Math.max(0, t - 10), true);
+  });
+  navigator.mediaSession.setActionHandler('seekforward', () => {
+    const t = player?.getCurrentTime() || 0;
+    player?.seekTo(t + 10, true);
+  });
+
+  updateMediaState('playing');
+  mediaSessionActive = true;
+
+  // Show status bar
+  document.getElementById('mediaBar').style.display = 'flex';
+  document.getElementById('mediaBarTitle').textContent = title;
+
+  // Start audio keep-alive trick
+  startAudioKeepAlive();
+}
+
+/* ---------------------------------------------------------------
+   K2. Update MediaSession playback state
+--------------------------------------------------------------- */
+function updateMediaState(state) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.playbackState = state;
+}
+
+/* ---------------------------------------------------------------
+   K3. Audio Keep-Alive Trick
+   The browser only keeps MediaSession active when there's real
+   audio playing. We play a silent audio loop to keep the session
+   alive even when the YT iframe is paused/muted.
+--------------------------------------------------------------- */
+function startAudioKeepAlive() {
+  const audio = document.getElementById('bgAudio');
+  if (!audio) return;
+
+  // Create AudioContext + gain node set to near-zero volume
+  if (!bgAudioCtx) {
+    try {
+      bgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src  = bgAudioCtx.createMediaElementSource(audio);
+      const gain = bgAudioCtx.createGain();
+      gain.gain.value = 0.001; // virtually silent but keeps session alive
+      src.connect(gain);
+      gain.connect(bgAudioCtx.destination);
+    } catch (e) { console.warn('AudioContext:', e); }
+  }
+
+  audio.play().catch(() => {});
+}
+
+/* ---------------------------------------------------------------
+   K4. Stop MediaSession
+--------------------------------------------------------------- */
+function deactivateMediaSession() {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'none';
+    navigator.mediaSession.metadata = null;
+  }
+  const audio = document.getElementById('bgAudio');
+  if (audio) audio.pause();
+  document.getElementById('mediaBar').style.display = 'none';
+  mediaSessionActive = false;
+}
+
+/* ---------------------------------------------------------------
+   K5. Hook into YT player state changes for MediaSession sync
+--------------------------------------------------------------- */
+const _origStateChange = window.onPlayerStateChange;
+function onPlayerStateChange(event) {
+  if (_origStateChange) _origStateChange(event);
+
+  const states = {
+    [-1]: 'لم يبدأ بعد', [0]: 'انتهى الفيديو',
+    [1]: '▶ يعمل', [2]: '⏸ متوقف',
+    [3]: '⏳ يحمّل…', [5]: 'جاهز',
+  };
+  const el = document.getElementById('infoState');
+  if (el) el.textContent = states[event.data] ?? '—';
+
+  // Sync MediaSession state
+  if (event.data === YT.PlayerState.PLAYING) {
+    updateMediaState('playing');
+    if (!mediaSessionActive) activateMediaSession(currentVideoTitle);
+  } else if (event.data === YT.PlayerState.PAUSED) {
+    updateMediaState('paused');
+  } else if (event.data === YT.PlayerState.ENDED) {
+    updateMediaState('none');
+  }
+}
+
+/* ---------------------------------------------------------------
+   K6. Override onPlayerReady to activate MediaSession
+--------------------------------------------------------------- */
+const _origPlayerReady = window.onPlayerReady;
+function onPlayerReady(event) {
+  document.getElementById('loadingOverlay').style.display = 'none';
+  event.target.playVideo();
+  updateInfoPanel();
+  qualityInterval = setInterval(updateInfoPanel, 2000);
+
+  // Activate MediaSession with video ID as title (real title not available via IFrame API)
+  const title = `فيديو يوتيوب — ${currentVideoId}`;
+  activateMediaSession(title, 'YouTube via FocusPlay');
+  showToast('🎬 الفيديو جاهز — يعمل حتى بعد قفل الشاشة!', 'success');
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION L: PWA — PROGRESSIVE WEB APP
+============================================================ */
+
+/* ---------------------------------------------------------------
+   L1. Generate & inject Web App Manifest dynamically
+   (No external manifest.json file needed)
+--------------------------------------------------------------- */
+function injectPWAManifest() {
+  const manifest = {
+    name:             'FocusPlay — مشاهدة بلا تشتيت',
+    short_name:       'FocusPlay',
+    description:      'شاهد يوتيوب بدون تشتيت — فكرة M O R A',
+    start_url:        './',
+    display:          'standalone',
+    orientation:      'any',
+    background_color: '#0f172a',
+    theme_color:      '#0ea5e9',
+    lang:             'ar',
+    dir:              'rtl',
+    categories:       ['entertainment', 'productivity'],
+    icons: [
+      {
+        src:   'data:image/svg+xml,' + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+            <rect width="192" height="192" rx="40" fill="#0f172a"/>
+            <rect width="192" height="192" rx="40" fill="#0ea5e9" opacity=".15"/>
+            <polygon points="72,52 152,96 72,140" fill="#0ea5e9"/>
+          </svg>`),
+        sizes: '192x192',
+        type:  'image/svg+xml',
+        purpose: 'any maskable',
+      },
+    ],
+    shortcuts: [
+      {
+        name:      'مشغّل جديد',
+        url:       './#home',
+        icons:     [{ src: 'data:image/png;base64,iVBORw0KGgo=', sizes: '96x96' }],
+      },
+    ],
+  };
+
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  const url  = URL.createObjectURL(blob);
+  document.getElementById('pwaManifest').href = url;
+}
+
+/* ---------------------------------------------------------------
+   L2. Register Service Worker from /sw.js (standard file path)
+
+   Requirements:
+   - sw.js must be in the SAME folder as this HTML file
+   - Must run on HTTPS or localhost (browser requirement, not ours)
+
+   Graceful degradation:
+   - HTTP (non-localhost) → silently skipped, no console errors
+   - localhost            → registers fine for development
+   - HTTPS                → full PWA with offline support
+--------------------------------------------------------------- */
+function registerServiceWorker() {
+  // Hard requirement: browser must support SW
+  if (!('serviceWorker' in navigator)) {
+    console.info('ℹ️ Service Workers not supported in this browser.');
+    return;
+  }
+
+  // Hard requirement: must be HTTPS or localhost
+  // (Blob URL trick was removed — browsers block it by design)
+  const isSecure = location.protocol === 'https:' ||
+                   location.hostname === 'localhost' ||
+                   location.hostname === '127.0.0.1';
+
+  if (!isSecure) {
+    // Silent skip on plain HTTP — no red console errors
+    console.info('ℹ️ Service Worker skipped: needs HTTPS or localhost. ' +
+                 'Deploy to Netlify/Vercel for full PWA support.');
+    return;
+  }
+
+  // Register from the real file — sw.js must live next to this HTML file
+  navigator.serviceWorker
+    .register('./sw.js', { scope: './' })
+    .then((reg) => {
+      console.log('✅ Service Worker registered. Scope:', reg.scope);
+
+      // Listen for SW updates and notify user
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showToast('🔄 تحديث جديد متاح — أعد تحميل الصفحة', 'success');
+          }
+        });
+      });
+    })
+    .catch((err) => {
+      // Only log real unexpected errors (not the protocol error from before)
+      console.warn('Service Worker registration failed:', err.message);
+    });
+}
+
+/* ---------------------------------------------------------------
+   L3. PWA Install prompt — capture beforeinstallprompt event
+--------------------------------------------------------------- */
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+
+  // Show install banner after 3 seconds
+  setTimeout(() => {
+    document.getElementById('installBanner').style.display = 'block';
+  }, 3000);
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').style.display = 'none';
+  deferredInstallPrompt = null;
+  showToast('🎉 تم تثبيت FocusPlay بنجاح!', 'success');
+});
+
+/* ---------------------------------------------------------------
+   L4. Trigger native install prompt
+--------------------------------------------------------------- */
+async function installPWA() {
+  if (!deferredInstallPrompt) {
+    showToast('💡 افتح الموقع من Chrome ثم اضغط "إضافة للشاشة الرئيسية"', 'success');
+    document.getElementById('installBanner').style.display = 'none';
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') showToast('🎉 جاري تثبيت FocusPlay…', 'success');
+  deferredInstallPrompt = null;
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+/* ---------------------------------------------------------------
+   L5. Visibility change — resume audio session on tab return
+--------------------------------------------------------------- */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    // Resume AudioContext if suspended (browser policy)
+    if (bgAudioCtx && bgAudioCtx.state === 'suspended') {
+      bgAudioCtx.resume().catch(() => {});
+    }
+    // Resume bgAudio if paused
+    const audio = document.getElementById('bgAudio');
+    if (audio && mediaSessionActive && audio.paused) {
+      audio.play().catch(() => {});
+    }
+  }
+});
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION M: YOUTUBE SEARCH (no API key needed)
+     Uses YouTube's public suggest endpoint + oEmbed for details
+============================================================ */
+let searchTimer = null;
+
+function openSearch() {
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('searchField').focus(), 100);
+}
+function closeSearch() {
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchField').value = '';
+  document.getElementById('searchResults').innerHTML = '<div class="search-empty">اكتب للبحث عن فيديو…</div>';
+}
+function handleSearchOverlayClick(e) {
+  if (e.target === document.getElementById('searchOverlay')) closeSearch();
+}
+function debounceSearch(q) {
+  clearTimeout(searchTimer);
+  if (!q.trim()) {
+    document.getElementById('searchResults').innerHTML = '<div class="search-empty">اكتب للبحث عن فيديو…</div>';
+    return;
+  }
+  document.getElementById('searchResults').innerHTML = '<div class="search-loading"><div class="spinner" style="width:24px;height:24px;margin:auto;"></div></div>';
+  searchTimer = setTimeout(() => doSearch(q), 500);
+}
+
+/* ---------------------------------------------------------------
+   M1. Search using YouTube's public suggestion + redirect
+   Since YouTube Data API needs a key, we use a public CORS proxy
+   approach: redirect user to YouTube search but auto-load the
+   first result using the oEmbed API for known URLs.
+--------------------------------------------------------------- */
+async function doSearch(query) {
+  const container = document.getElementById('searchResults');
+
+  // Strategy: use a CORS-friendly approach via YouTube's autocomplete
+  // then build clickable search result links pointing to YouTube search
+  const suggestions = await fetchYTSuggestions(query);
+
+  if (!suggestions.length) {
+    container.innerHTML = '<div class="search-empty">لا نتائج — جرّب كلمات مختلفة</div>';
+    return;
+  }
+
+  container.innerHTML = suggestions.map(s => `
+    <div class="search-item" onclick="searchAndLoad('${escapeHtml(s)}')">
+      <div style="width:80px;height:45px;border-radius:6px;background:var(--slate-700);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;">▶</div>
+      <div class="search-info">
+        <div class="search-title">${escapeHtml(s)}</div>
+        <div class="search-channel">اضغط للبحث في يوتيوب وتحميله</div>
+      </div>
+    </div>
+  `).join('') + `
+    <div style="margin-top:.5rem;padding:.6rem;background:rgba(14,165,233,.06);border-radius:8px;font-size:.75rem;color:var(--muted);text-align:center;">
+      💡 أو الصق رابط مباشر في الصفحة الرئيسية للتشغيل الفوري
+    </div>`;
+}
+
+/* ---------------------------------------------------------------
+   M2. Fetch YouTube autocomplete suggestions (public endpoint)
+--------------------------------------------------------------- */
+async function fetchYTSuggestions(query) {
+  try {
+    const url = `https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&q=${encodeURIComponent(query)}&callback=__yt_cb`;
+    // Use JSONP trick via script tag
+    return await new Promise((resolve) => {
+      window.__yt_cb = (data) => {
+        delete window.__yt_cb;
+        const suggestions = (data[1] || []).slice(0, 8).map(s => s[0]);
+        resolve(suggestions);
+      };
+      const s = document.createElement('script');
+      s.src = url;
+      s.onerror = () => resolve([query]);
+      document.head.appendChild(s);
+      setTimeout(() => { delete window.__yt_cb; resolve([query]); }, 3000);
+    });
+  } catch {
+    return [query];
+  }
+}
+
+/* ---------------------------------------------------------------
+   M3. Open YouTube search and instruct user to paste URL
+--------------------------------------------------------------- */
+function searchAndLoad(query) {
+  const ytSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+  window.open(ytSearchUrl, '_blank', 'noopener');
+  closeSearch();
+  showToast('🔍 افتح الفيديو من يوتيوب والصق الرابط هنا', 'success');
+  setTimeout(() => {
+    scrollToTop();
+    document.getElementById('urlInput').placeholder = 'الصق رابط الفيديو من يوتيوب هنا…';
+  }, 500);
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION N: SPEED CONTROL
+============================================================ */
+const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+let currentSpeed = 1;
+
+function buildSpeedGrid() {
+  document.getElementById('speedGrid').innerHTML = SPEEDS.map(s => `
+    <button class="speed-chip ${s === 1 ? 'active' : ''}" onclick="setSpeed(${s})">${s}×</button>
+  `).join('');
+}
+
+function toggleSpeedPanel() {
+  document.getElementById('speedPanel').classList.toggle('open');
+  document.getElementById('sleepPanel').classList.remove('open');
+}
+
+function setSpeed(s) {
+  currentSpeed = s;
+  if (player && typeof player.setPlaybackRate === 'function') {
+    player.setPlaybackRate(s);
+  }
+  document.getElementById('speedLabel').textContent = `${s}×`;
+  document.querySelectorAll('.speed-chip').forEach(el => {
+    el.classList.toggle('active', parseFloat(el.textContent) === s);
+  });
+  document.getElementById('speedPanel').classList.remove('open');
+  showToast(`⚡ السرعة: ${s}×`, 'success');
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION O: WATCH HISTORY
+============================================================ */
+const HISTORY_KEY = 'focusplay_history';
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
+}
+function saveHistory(arr) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0, 50))); } catch {}
+}
+
+/* ---------------------------------------------------------------
+   O1. Add current video to history
+--------------------------------------------------------------- */
+function addToHistory(videoId, title) {
+  const history = getHistory().filter(h => h.id !== videoId);
+  history.unshift({
+    id: videoId,
+    title: title || `فيديو — ${videoId}`,
+    thumb: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+    ts: new Date().toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }),
+  });
+  saveHistory(history);
+  renderHistory();
+}
+
+/* ---------------------------------------------------------------
+   O2. Render history list
+--------------------------------------------------------------- */
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const history = getHistory();
+  if (!history.length) {
+    list.innerHTML = '<p class="notes-empty">لا يوجد سجل بعد</p>';
+    return;
+  }
+  list.innerHTML = history.map(h => `
+    <div class="history-item" onclick="loadFromHistory('${h.id}')">
+      <img class="history-thumb" src="${h.thumb}" alt="" loading="lazy" onerror="this.style.display='none'" />
+      <div class="history-info">
+        <div class="history-title">${escapeHtml(h.title)}</div>
+        <div class="history-time">${h.ts}</div>
+      </div>
+      <button class="history-del" onclick="removeFromHistory(event,'${h.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function loadFromHistory(id) {
+  document.getElementById('urlInput').value = `https://www.youtube.com/watch?v=${id}`;
+  loadVideo();
+}
+function removeFromHistory(e, id) {
+  e.stopPropagation();
+  saveHistory(getHistory().filter(h => h.id !== id));
+  renderHistory();
+}
+function clearHistory() {
+  if (!confirm('مسح سجل المشاهدة كامل؟')) return;
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+  showToast('🗑️ تم مسح السجل', 'success');
+}
+function toggleHistoryCard() {
+  const c = document.getElementById('historyCard');
+  c.style.display = c.style.display === 'none' ? '' : 'none';
+  renderHistory();
+  closeSettings();
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION P: BOOKMARKS (Video Timestamps)
+============================================================ */
+const BOOKMARKS_KEY = 'focusplay_bookmarks';
+
+function getBookmarks(videoId) {
+  try {
+    const all = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || {};
+    return all[videoId] || [];
+  } catch { return []; }
+}
+function saveBookmarks(videoId, arr) {
+  try {
+    const all = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || {};
+    all[videoId] = arr;
+    localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(all));
+  } catch {}
+}
+
+/* ---------------------------------------------------------------
+   P1. Add bookmark at current playback time
+--------------------------------------------------------------- */
+function addBookmark() {
+  if (!player || !currentVideoId) { showToast('⚠️ شغّل فيديو أولاً', 'error'); return; }
+  try {
+    const t   = Math.floor(player.getCurrentTime());
+    const mins = String(Math.floor(t / 60)).padStart(2, '0');
+    const secs = String(t % 60).padStart(2, '0');
+    const ts   = `${mins}:${secs}`;
+    const label = prompt(`إشارة عند ${ts} — أضف وصفاً (اختياري):`, '') ?? '';
+    const bookmarks = getBookmarks(currentVideoId);
+    bookmarks.push({ t, ts, label: label.trim() || `إشارة ${ts}`, id: Date.now() });
+    bookmarks.sort((a, b) => a.t - b.t);
+    saveBookmarks(currentVideoId, bookmarks);
+    renderBookmarks();
+    document.getElementById('bookmarksCard').style.display = '';
+    showToast(`🔖 إشارة محفوظة عند ${ts}`, 'success');
+  } catch { showToast('⚠️ تعذّر إضافة الإشارة', 'error'); }
+}
+
+/* ---------------------------------------------------------------
+   P2. Render bookmarks
+--------------------------------------------------------------- */
+function renderBookmarks() {
+  const list = document.getElementById('bookmarksList');
+  if (!currentVideoId) { list.innerHTML = '<p class="notes-empty">شغّل فيديو أولاً</p>'; return; }
+  const bookmarks = getBookmarks(currentVideoId);
+  if (!bookmarks.length) {
+    list.innerHTML = '<p class="notes-empty">لا توجد إشارات — اضغط 🔖 أثناء التشغيل</p>';
+    return;
+  }
+  list.innerHTML = bookmarks.map(b => `
+    <div class="bookmark-item" onclick="seekToBookmark(${b.t})">
+      <span class="bookmark-ts">${b.ts}</span>
+      <span class="bookmark-label">${escapeHtml(b.label)}</span>
+      <button class="bookmark-del" onclick="deleteBookmark(event,${b.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+function seekToBookmark(t) {
+  if (player && typeof player.seekTo === 'function') {
+    player.seekTo(t, true);
+    player.playVideo();
+    showToast(`⏩ انتقلت إلى ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`, 'success');
+  }
+}
+function deleteBookmark(e, id) {
+  e.stopPropagation();
+  saveBookmarks(currentVideoId, getBookmarks(currentVideoId).filter(b => b.id !== id));
+  renderBookmarks();
+}
+function clearAllBookmarks() {
+  if (!currentVideoId || !confirm('مسح كل الإشارات لهذا الفيديو؟')) return;
+  saveBookmarks(currentVideoId, []);
+  renderBookmarks();
+  showToast('🗑️ تم مسح الإشارات', 'success');
+}
+function toggleBookmarksCard() {
+  const c = document.getElementById('bookmarksCard');
+  c.style.display = c.style.display === 'none' ? '' : 'none';
+  closeSettings();
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION Q: SLEEP TIMER
+============================================================ */
+const SLEEP_OPTIONS = [5, 10, 15, 20, 30, 45, 60, 90];
+let sleepTimer    = null;
+let sleepSeconds  = 0;
+let sleepInterval = null;
+
+function buildSleepChips() {
+  document.getElementById('sleepChips').innerHTML = SLEEP_OPTIONS.map(m => `
+    <button class="sleep-chip" onclick="startSleepTimer(${m})">${m} د</button>
+  `).join('');
+}
+
+function toggleSleepPanel() {
+  document.getElementById('sleepPanel').classList.toggle('open');
+  document.getElementById('speedPanel').classList.remove('open');
+}
+
+function startSleepTimer(mins) {
+  cancelSleepTimer();
+  sleepSeconds = mins * 60;
+  const countdown = document.getElementById('sleepCountdown');
+  countdown.style.display = 'block';
+
+  document.querySelectorAll('.sleep-chip').forEach(el => {
+    el.classList.toggle('active', parseInt(el.textContent) === mins);
+  });
+
+  sleepInterval = setInterval(() => {
+    sleepSeconds--;
+    const m = String(Math.floor(sleepSeconds / 60)).padStart(2, '0');
+    const s = String(sleepSeconds % 60).padStart(2, '0');
+    countdown.textContent = `${m}:${s}`;
+    document.getElementById('sleepBtn').textContent = `⏰ ${m}:${s}`;
+    if (sleepSeconds <= 0) {
+      cancelSleepTimer();
+      player?.pauseVideo();
+      showToast('😴 انتهى المؤقت — تم إيقاف التشغيل', 'success');
+    }
+  }, 1000);
+
+  document.getElementById('sleepPanel').classList.remove('open');
+  showToast(`⏰ سيوقف بعد ${mins} دقيقة`, 'success');
+}
+
+function cancelSleepTimer() {
+  clearInterval(sleepInterval);
+  clearTimeout(sleepTimer);
+  sleepSeconds  = 0;
+  sleepInterval = null;
+  document.getElementById('sleepBtn').textContent = '⏰ مؤقت';
+  document.getElementById('sleepCountdown').style.display = 'none';
+  document.querySelectorAll('.sleep-chip').forEach(el => el.classList.remove('active'));
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION R: THEME SWITCHER
+============================================================ */
+function setTheme(theme, btn) {
+  document.documentElement.removeAttribute('data-theme');
+  if (theme !== 'dark') document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-chip').forEach(el => el.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  try { localStorage.setItem('focusplay_theme', theme); } catch {}
+  showToast(`🎨 ثيم: ${btn?.textContent || theme}`, 'success');
+}
+
+function loadSavedTheme() {
+  const t = localStorage.getItem('focusplay_theme') || 'dark';
+  if (t !== 'dark') document.documentElement.setAttribute('data-theme', t);
+  document.querySelectorAll('.theme-chip').forEach(el => {
+    if (el.textContent.toLowerCase().includes(t)) el.classList.add('active');
+  });
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION S: SETTINGS PANEL
+============================================================ */
+function openSettings() {
+  document.getElementById('settingsPanel').classList.add('open');
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settingsPanel').classList.remove('open');
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION T: KEYBOARD SHORTCUTS
+============================================================ */
+document.addEventListener('keydown', (e) => {
+  const tag = document.activeElement.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea') return;
+
+  switch (e.key) {
+    case ' ':
+    case 'k':
+      e.preventDefault();
+      if (player) {
+        const state = player.getPlayerState();
+        state === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
+      }
+      break;
+    case 'ArrowRight':
+      e.preventDefault();
+      if (player) player.seekTo((player.getCurrentTime() || 0) + 10, true);
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      if (player) player.seekTo(Math.max(0, (player.getCurrentTime() || 0) - 10), true);
+      break;
+    case 'ArrowUp':
+      e.preventDefault();
+      if (player) player.setVolume(Math.min(100, (player.getVolume() || 0) + 10));
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      if (player) player.setVolume(Math.max(0, (player.getVolume() || 100) - 10));
+      break;
+    case 'f':
+    case 'F':
+      if (player) { try { const iframe = document.querySelector('#yt-player iframe'); iframe?.requestFullscreen?.(); } catch {} }
+      break;
+    case 'm':
+    case 'M':
+      if (player) { player.isMuted() ? player.unMute() : player.mute(); }
+      break;
+    case 'n':
+    case 'N':
+      document.getElementById('noteInput')?.focus();
+      break;
+    case 'b':
+    case 'B':
+      addBookmark();
+      break;
+    case 's':
+    case 'S':
+      if (!e.ctrlKey && !e.metaKey) openSearch();
+      break;
+    case 'Escape':
+      closeSearch();
+      closeSettings();
+      document.getElementById('speedPanel').classList.remove('open');
+      document.getElementById('sleepPanel').classList.remove('open');
+      break;
+  }
+});
+
+// Close speed/sleep panels on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.speed-btn-wrap')) document.getElementById('speedPanel').classList.remove('open');
+  if (!e.target.closest('.sleep-btn-wrap')) document.getElementById('sleepPanel').classList.remove('open');
+});
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION U: EXPORT NOTES AS PDF
+============================================================ */
+function exportNotesPDF() {
+  const notes = getNotes();
+  if (!notes.length) { showToast('⚠️ لا توجد ملاحظات للتصدير', 'error'); return; }
+
+  const videoTitle = document.getElementById('videoTitle').textContent || 'FocusPlay';
+  const date = new Date().toLocaleDateString('ar-EG');
+
+  const htmlContent = `<!DOCTYPE html><html dir="rtl" lang="ar">
+<head><meta charset="UTF-8">
+<style>
+  body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:2rem;color:#1e293b}
+  h1{color:#0ea5e9;border-bottom:2px solid #0ea5e9;padding-bottom:.5rem}
+  .note{background:#f8fafc;border-right:4px solid #0ea5e9;padding:1rem;margin:1rem 0;border-radius:4px}
+  .ts{font-size:.8rem;color:#64748b;margin-top:.5rem}
+  .meta{color:#64748b;font-size:.85rem;margin-bottom:2rem}
+</style></head>
+<body>
+<h1>📝 ملاحظات FocusPlay</h1>
+<div class="meta">الفيديو: ${videoTitle} · التاريخ: ${date} · عدد الملاحظات: ${notes.length}</div>
+${notes.map(n => `<div class="note"><p>${n.text}</p><div class="ts">${n.ts}</div></div>`).join('')}
+<hr style="margin-top:2rem;border-color:#e2e8f0">
+<p style="color:#94a3b8;font-size:.75rem;text-align:center">فكرة M O R A · FocusPlay © 2026</p>
+</body></html>`;
+
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if (win) {
+    setTimeout(() => { win.print(); }, 800);
+    showToast('📄 افتح نافذة الطباعة → حفظ كـ PDF', 'success');
+  } else {
+    // Fallback: direct download as HTML
+    const a = document.createElement('a');
+    a.href = url; a.download = `FocusPlay_Notes_${Date.now()}.html`; a.click();
+    showToast('📄 تم تنزيل الملاحظات كـ HTML', 'success');
+  }
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION G: INIT  (updated)
 ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   renderBandwidthCards();
-  renderNotes();   // Show any previously saved notes on load
-  console.log('🚀 FocusPlay initialized');
+  renderNotes();
+  calcBandwidth();
+  injectPWAManifest();
+  registerServiceWorker();
+  buildSpeedGrid();
+  buildSleepChips();
+  loadSavedTheme();
+  renderHistory();
+  console.log('🚀 FocusPlay v2.0 — by M O R A — initialized');
 });
 </script>
 
