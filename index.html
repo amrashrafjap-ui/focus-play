@@ -16,8 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-  <!-- ===== YouTube IFrame API ===== -->
-  <script src="https://www.youtube.com/iframe_api"></script>
+  <!-- Invidious player — no YouTube API needed, no ads -->
 
   <style>
     /* ============================================================
@@ -1111,7 +1110,72 @@
     .settings-section { margin-bottom: 1.5rem; }
     .settings-label { font-size: .75rem; font-weight: 700; color: var(--sky-400); letter-spacing: .8px; text-transform: uppercase; margin-bottom: .6rem; }
 
-  
+    /* ============================================================
+       SECTION 22: MINI PLAYER
+    ============================================================ */
+    .mini-player {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      width: 300px; background: var(--slate-900);
+      border: 1px solid var(--sky-500); border-radius: 16px;
+      overflow: hidden; z-index: 8500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6), var(--glow);
+      display: none; flex-direction: column;
+      animation: fadeSlideDown .25s ease;
+    }
+    .mini-player.visible { display: flex; }
+    .mini-player-video { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; }
+    .mini-player-video iframe { width: 100%; height: 100%; border: none; }
+    .mini-player-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; background: var(--surface);
+    }
+    .mini-title {
+      flex: 1; font-size: .72rem; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text);
+    }
+    .mini-ctrl {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 1rem; padding: 2px 5px;
+      transition: color var(--t-fast); line-height: 1;
+    }
+    .mini-ctrl:hover { color: var(--sky-400); }
+
+    /* ============================================================
+       SECTION 23: PLAYLIST
+    ============================================================ */
+    .playlist-item {
+      display: flex; align-items: center; gap: .7rem;
+      padding: 8px 10px; border-radius: 8px; cursor: pointer;
+      border: 1px solid transparent; transition: all var(--t-fast); margin-bottom: .35rem;
+    }
+    .playlist-item:hover { background: rgba(14,165,233,.06); border-color: var(--sky-500); }
+    .playlist-item.active { background: rgba(14,165,233,.12); border-color: var(--sky-500); }
+    .pl-num { font-family: var(--font-mono); font-size: .7rem; color: var(--slate-600); width: 18px; text-align: center; flex-shrink: 0; }
+    .playlist-item.active .pl-num { color: var(--sky-400); font-weight: 700; }
+    .pl-thumb { width: 56px; height: 32px; border-radius: 4px; object-fit: cover; background: var(--slate-700); flex-shrink: 0; }
+    .pl-info { flex: 1; min-width: 0; }
+    .pl-title { font-size: .78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pl-meta { font-size: .68rem; color: var(--muted); font-family: var(--font-mono); }
+    .pl-del { background: none; border: none; color: var(--slate-600); cursor: pointer; font-size: .82rem; padding: 2px 4px; transition: color var(--t-fast); }
+    .pl-del:hover { color: #f87171; }
+    .pl-add-row { display: flex; gap: .5rem; margin-bottom: .75rem; }
+    .pl-add-input {
+      flex: 1; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 10px; color: var(--text);
+      font-family: var(--font-ui); font-size: .8rem; outline: none;
+      direction: ltr; transition: border-color var(--t-fast);
+    }
+    .pl-add-input:focus { border-color: var(--sky-500); }
+    .pl-controls { display: flex; gap: .4rem; margin-bottom: .6rem; flex-wrap: wrap; }
+
+    /* ============================================================
+       SECTION 24: STATS
+    ============================================================ */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    .stat-card { background: var(--surface2); border-radius: 10px; padding: .85rem; text-align: center; border: 1px solid var(--border); }
+    .stat-val { font-size: 1.2rem; font-weight: 900; font-family: var(--font-mono); color: var(--sky-400); }
+    .stat-lbl { font-size: .7rem; color: var(--muted); margin-top: 3px; }
+
     footer {
       position: relative;
       z-index: 1;
@@ -1282,9 +1346,9 @@
     </div>
     <div class="quick-links">
       <span class="quick-label">أمثلة:</span>
-      <button class="quick-chip" onclick="setExample('dQw4w9WgXcQ')">ريك أستلي 🎵</button>
-      <button class="quick-chip" onclick="setExample('jNQXAC9IVRw')">أول فيديو 📹</button>
-      <button class="quick-chip" onclick="setExample('LXb3EKWsInQ')">LOFI ☕</button>
+      <button class="quick-chip" onclick="document.getElementById('urlInput').value='https://www.youtube.com/watch?v=dQw4w9WgXcQ';loadVideo()">ريك أستلي 🎵</button>
+      <button class="quick-chip" onclick="document.getElementById('urlInput').value='https://www.youtube.com/watch?v=jNQXAC9IVRw';loadVideo()">أول فيديو 📹</button>
+      <button class="quick-chip" onclick="document.getElementById('urlInput').value='https://www.youtube.com/watch?v=LXb3EKWsInQ';loadVideo()">LOFI ☕</button>
     </div>
   </div>
 
@@ -1473,9 +1537,44 @@
         </div>
       </div>
 
+      <!-- PLAYLIST CARD -->
+      <div class="sidebar-card" id="playlistCard">
+        <div class="card-header"><div class="dot"></div>قائمة التشغيل</div>
+        <div class="pl-add-row">
+          <input class="pl-add-input" id="plInput" placeholder="https://youtube.com/watch?v=..." 
+                 onkeydown="if(event.key==='Enter')addToPlaylist()" />
+          <button class="note-action-btn save" onclick="addToPlaylist()" style="white-space:nowrap;padding:7px 12px;">+ أضف</button>
+        </div>
+        <div class="pl-controls">
+          <button class="note-action-btn" onclick="playPrev()">⏮ السابق</button>
+          <button class="note-action-btn" onclick="toggleShuffle()" id="shuffleBtn">🔀 عشوائي</button>
+          <button class="note-action-btn" onclick="toggleRepeat()" id="repeatBtn">🔁 تكرار</button>
+          <button class="note-action-btn" onclick="clearPlaylist()" style="color:#f87171;">🗑️</button>
+        </div>
+        <div id="playlistItems"><p class="notes-empty">أضف فيديوهات لقائمة التشغيل 🎵</p></div>
+      </div>
+
+      <!-- STATS CARD -->
+      <div class="sidebar-card" id="statsCard">
+        <div class="card-header"><div class="dot"></div>إحصائياتك</div>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+
     </div>
   </div>
 </section>
+
+<!-- MINI PLAYER -->
+<div class="mini-player" id="miniPlayer">
+  <div class="mini-player-video" id="miniPlayerVideo"></div>
+  <div class="mini-player-bar">
+    <span class="mini-title" id="miniTitle">FocusPlay</span>
+    <button class="mini-ctrl" onclick="miniPlayPause()" id="miniPlayBtn">⏸</button>
+    <button class="mini-ctrl" onclick="playNext()">⏭</button>
+    <button class="mini-ctrl" onclick="expandPlayer()">⛶</button>
+    <button class="mini-ctrl" onclick="closeMiniPlayer()">✕</button>
+  </div>
+</div>
 
 <!-- ============================================================
      BANDWIDTH SECTION
@@ -1532,7 +1631,7 @@
   <span>·</span>
   <a href="#home">العودة للأعلى</a>
   <span>·</span>
-  <span>YouTube IFrame API</span>
+  <span style="color:var(--sky-400);">🚫 بدون إعلانات — Invidious</span>
 </footer>
 
 <!-- ============================================================
@@ -1635,10 +1734,10 @@
   </div>
 </div>
 
-<!-- HIDDEN AUDIO — keeps audio session alive for background playback -->
-<audio id="bgAudio" loop style="display:none;" preload="none">
-  <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA" type="audio/wav" />
-</audio>
+<!-- BACKGROUND AUDIO — real audio stream for lock screen playback -->
+<audio id="bgAudio" preload="none" style="display:none;"
+       onended="handleAudioEnded()"
+       onerror="handleAudioError()"></audio>
 
 <!-- ============================================================
      TOAST CONTAINER
@@ -1647,118 +1746,216 @@
 
 
 <!-- ============================================================
-     JAVASCRIPT — SECTION A: YOUTUBE IFRAME API SETUP
+     JAVASCRIPT — SECTION A: INVIDIOUS PLAYER (بدون إعلانات)
 ============================================================ -->
 <script>
 /* ---------------------------------------------------------------
    A1. Global State
 --------------------------------------------------------------- */
-let player = null;           // YouTube IFrame Player instance
-let currentVideoId = '';     // Currently loaded video ID
-let isTheaterMode = false;   // Theater mode toggle
-let qualityInterval = null;  // Interval for polling playback quality
+let player         = null;       // Invidious iframe element
+let currentVideoId = '';
+let isTheaterMode  = false;
+let qualityInterval = null;
+let currentSpeed   = 1;
 
 /* ---------------------------------------------------------------
-   A2. YouTube IFrame API — onYouTubeIframeAPIReady
-   Called automatically by the YouTube IFrame API script once loaded.
-   This is the official fix for Error 153 (player config error when
-   using a plain <iframe> on localhost).
+   A2. Invidious instances — fallback chain if one is down
+   كل دي سيرفرات Invidious مفتوحة المصدر — بتشغّل يوتيوب بدون إعلانات
 --------------------------------------------------------------- */
-function onYouTubeIframeAPIReady() {
-  console.log('✅ YouTube IFrame API ready');
-  // If a video was queued before API loaded, initialize it now
-  if (currentVideoId) initPlayer(currentVideoId);
+const INVIDIOUS_INSTANCES = [
+  'https://inv.nadeko.net',
+  'https://invidious.nerdvpn.de',
+  'https://invidious.privacydev.net',
+  'https://vid.puffyan.us',
+  'https://invidious.slipfox.xyz',
+];
+let instanceIndex = 0;
+
+function getCurrentInstance() {
+  return INVIDIOUS_INSTANCES[instanceIndex % INVIDIOUS_INSTANCES.length];
 }
 
 /* ---------------------------------------------------------------
-   A3. Initialize YouTube Player
+   A3. Initialize Invidious Player
+   وضع مزدوج: iframe للصورة + <audio> حقيقي للصوت في الخلفية
 --------------------------------------------------------------- */
 function initPlayer(videoId) {
-  // Destroy existing player cleanly before creating a new one
-  if (player) {
-    clearInterval(qualityInterval);
-    player.destroy();
-    player = null;
+  clearInterval(qualityInterval);
+  player = null;
+
+  const wrapper = document.getElementById('yt-player');
+  const base    = getCurrentInstance();
+  const params  = new URLSearchParams({
+    autoplay: 1, rel: 0, local: 'true',
+    listen: 0, speed: currentSpeed, quality: 'dash',
+  });
+
+  wrapper.innerHTML = `
+    <iframe
+      id="inv-iframe"
+      src="${base}/embed/${videoId}?${params}"
+      style="position:absolute;inset:0;width:100%;height:100%;border:none;"
+      allow="autoplay; fullscreen; picture-in-picture"
+      allowfullscreen
+      title="FocusPlay — ${videoId}"
+    ></iframe>`;
+
+  const iframe = document.getElementById('inv-iframe');
+
+  iframe.addEventListener('load', () => {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('infoState').textContent    = '▶ يعمل';
+    document.getElementById('infoQuality').textContent  = 'Invidious';
+    addToHistory(videoId, `فيديو — ${videoId}`);
+    renderBookmarks();
+    document.getElementById('bookmarksCard').style.display = '';
+    document.getElementById('historyCard').style.display   = '';
+
+    // جيب audio stream وشغّله في الخلفية
+    fetchAndPlayAudio(videoId);
+    showToast('🎬 بدون إعلانات — Invidious 🚀', 'success');
+  });
+
+  iframe.addEventListener('error', () => tryNextInstance(videoId));
+  setTimeout(() => {
+    if (document.getElementById('loadingOverlay').style.display !== 'none')
+      tryNextInstance(videoId);
+  }, 8000);
+
+  player = {
+    playVideo:       () => { iframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}','*'); getBgAudio()?.play().catch(()=>{}); updateMediaState('playing'); },
+    pauseVideo:      () => { iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}','*'); getBgAudio()?.pause(); updateMediaState('paused'); },
+    stopVideo:       () => { iframe.contentWindow?.postMessage('{"event":"command","func":"stopVideo","args":""}','*'); getBgAudio()?.pause(); },
+    seekTo:          (t) => iframe.contentWindow?.postMessage(`{"event":"command","func":"seekTo","args":[${t},true]}`,'*'),
+    setVolume:       (v) => { const a = getBgAudio(); if(a) a.volume = v/100; },
+    mute:            () => { const a = getBgAudio(); if(a) a.muted = true; },
+    unMute:          () => { const a = getBgAudio(); if(a) a.muted = false; },
+    isMuted:         () => getBgAudio()?.muted || false,
+    setPlaybackRate: (s) => { currentSpeed = s; const a = getBgAudio(); if(a) a.playbackRate = s; reloadWithSpeed(videoId, s); },
+    getPlaybackQuality: () => 'invidious',
+    getCurrentTime:  () => getBgAudio()?.currentTime || 0,
+    getPlayerState:  () => 1,
+    getVolume:       () => (getBgAudio()?.volume || 1) * 100,
+    destroy:         () => { wrapper.innerHTML = ''; stopBgAudio(); },
+  };
+}
+
+/* ---------------------------------------------------------------
+   A3b. جيب audio URL من Invidious API وشغّله في <audio> حقيقي
+--------------------------------------------------------------- */
+async function fetchAndPlayAudio(videoId) {
+  // جرّب كل instance
+  for (let i = 0; i < INVIDIOUS_INSTANCES.length; i++) {
+    const base = INVIDIOUS_INSTANCES[(instanceIndex + i) % INVIDIOUS_INSTANCES.length];
+    try {
+      const res  = await fetch(`${base}/api/v1/videos/${videoId}?fields=adaptiveFormats,title,author`, {
+        signal: AbortSignal.timeout(5000)
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+
+      // خد أعلى جودة audio فقط (opus أو mp4a)
+      const audioFormats = (data.adaptiveFormats || [])
+        .filter(f => f.type?.startsWith('audio/'))
+        .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+
+      if (!audioFormats.length) continue;
+
+      const audioUrl = audioFormats[0].url;
+      if (!audioUrl) continue;
+
+      // شغّل الـ audio في العنصر المخفي
+      const bgAudio = document.getElementById('bgAudio');
+      bgAudio.src   = audioUrl;
+      bgAudio.loop  = false;
+      bgAudio.volume = 1.0;   // صوت كامل — مش 0.001
+      bgAudio.playbackRate = currentSpeed;
+
+      await bgAudio.play();
+
+      // حدّث MediaSession بالتفاصيل الحقيقية
+      activateMediaSession(
+        data.title  || `فيديو — ${videoId}`,
+        data.author || 'YouTube via FocusPlay'
+      );
+
+      console.log('✅ Background audio playing:', audioFormats[0].type);
+      return;
+
+    } catch (e) {
+      console.warn('Audio fetch failed for', base, e.message);
+    }
   }
 
-  // Re-create the target div (YT.Player replaces the element)
-  document.getElementById('yt-player').innerHTML = '';
-
-  player = new YT.Player('yt-player', {
-    videoId: videoId,
-    playerVars: {
-      autoplay: 1,
-      rel: 0,           // No related videos
-      modestbranding: 1,// Minimal YouTube branding
-      iv_load_policy: 3,// No annotations
-      fs: 1,            // Fullscreen allowed
-      cc_load_policy: 0,// No captions by default
-      hl: 'ar',         // Arabic interface
-      playsinline: 1,   // Inline on mobile
-    },
-    events: {
-      onReady:       onPlayerReady,
-      onStateChange: onPlayerStateChange,
-      onError:       onPlayerError,
-    },
-  });
+  // Fallback: استخدم الـ keep-alive القديم
+  console.warn('⚠️ Could not fetch audio stream — using keep-alive fallback');
+  activateMediaSession(`فيديو — ${videoId}`, 'YouTube via FocusPlay');
+  startAudioKeepAlive();
 }
 
 /* ---------------------------------------------------------------
-   A4. Player Event Handlers
+   A3c. مساعد — جيب عنصر الـ audio
 --------------------------------------------------------------- */
-function onPlayerReady(event) {
-  document.getElementById('loadingOverlay').style.display = 'none';
-  event.target.playVideo();
-  updateInfoPanel();
-  // Poll quality every 2s
-  qualityInterval = setInterval(updateInfoPanel, 2000);
-  showToast('🎬 الفيديو جاهز للمشاهدة', 'success');
+function getBgAudio() {
+  return document.getElementById('bgAudio');
 }
 
-function onPlayerStateChange(event) {
-  const states = {
-    [-1]: 'لم يبدأ بعد',
-    [0]:  'انتهى الفيديو',
-    [1]:  '▶ يعمل',
-    [2]:  '⏸ متوقف',
-    [3]:  '⏳ يحمّل…',
-    [5]:  'جاهز',
-  };
-  const el = document.getElementById('infoState');
-  if (el) el.textContent = states[event.data] ?? '—';
+function stopBgAudio() {
+  const a = getBgAudio();
+  if (a) { a.pause(); a.src = ''; }
 }
 
-function onPlayerError(event) {
-  const errors = {
-    2:   'معرّف الفيديو غير صحيح',
-    5:   'خطأ في HTML5 Player',
-    100: 'الفيديو غير موجود أو محذوف',
-    101: 'المشاركة غير مسموحة من صاحب الفيديو',
-    150: 'المشاركة غير مسموحة (150)',
-  };
-  showToast('❌ ' + (errors[event.data] || `خطأ: ${event.data}`), 'error');
-  document.getElementById('loadingOverlay').innerHTML =
-    `<div style="color:#f87171;font-size:1.5rem;">⚠️</div>
-     <p style="color:#f87171;">${errors[event.data] || 'حدث خطأ غير متوقع'}</p>`;
-  document.getElementById('loadingOverlay').style.display = 'flex';
+
+/* ---------------------------------------------------------------
+   A4. Reload with new speed
+--------------------------------------------------------------- */
+function reloadWithSpeed(videoId, speed) {
+  const base   = getCurrentInstance();
+  const iframe = document.getElementById('inv-iframe');
+  if (!iframe) return;
+  const url = new URL(iframe.src);
+  url.searchParams.set('speed', speed);
+  iframe.src = url.toString();
 }
 
 /* ---------------------------------------------------------------
-   A5. Update Info Panel
+   A5. Try next Invidious instance on failure
+--------------------------------------------------------------- */
+function tryNextInstance(videoId) {
+  instanceIndex++;
+  if (instanceIndex >= INVIDIOUS_INSTANCES.length) {
+    showToast('⚠️ كل السيرفرات تعبانة — جرّب تاني', 'error');
+    document.getElementById('loadingOverlay').innerHTML =
+      `<div style="color:#f87171;font-size:1.5rem">⚠️</div>
+       <p style="color:#f87171">تعذّر الاتصال — اضغط <button onclick="initPlayer('${videoId}')" style="color:var(--sky-400);background:none;border:none;cursor:pointer;font-size:.9rem">إعادة المحاولة</button></p>`;
+    return;
+  }
+  showToast(`🔄 جاري تجربة سيرفر آخر…`, 'success');
+  initPlayer(videoId);
+}
+
+/* ---------------------------------------------------------------
+   A6. Stub — onYouTubeIframeAPIReady not needed with Invidious
+   kept so any cached reference doesn't crash
+--------------------------------------------------------------- */
+function onYouTubeIframeAPIReady() {}
+
+/* ---------------------------------------------------------------
+   A7. Update Info Panel
 --------------------------------------------------------------- */
 function updateInfoPanel() {
-  if (!player || typeof player.getPlaybackQuality !== 'function') return;
-  const q = player.getPlaybackQuality();
-  const qualityMap = {
-    'tiny':   '144p', 'small':  '240p', 'medium': '360p',
-    'large':  '480p', 'hd720':  '720p', 'hd1080': '1080p',
-    'hd1440': '1440p','hd2160': '4K',   'highres': 'Ultra',
-    'auto':   'تلقائي',
-  };
   const el = document.getElementById('infoQuality');
-  if (el) el.textContent = qualityMap[q] ?? q;
+  if (el && el.textContent === '—') el.textContent = 'Invidious';
 }
+
+/* ---------------------------------------------------------------
+   A8. Player error handler stub (kept for compatibility)
+--------------------------------------------------------------- */
+function onPlayerError(event) {
+  showToast('❌ خطأ في التشغيل', 'error');
+}
+/* onPlayerReady stub — logic moved into iframe load event above */
+function onPlayerReady() {}
 
 
 /* ============================================================
@@ -1835,11 +2032,8 @@ function loadVideo() {
   // Smooth scroll to player
   setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
-  // Initialize player (or reload if API already loaded)
-  if (typeof YT !== 'undefined' && YT.Player) {
-    initPlayer(videoId);
-  }
-  // Otherwise onYouTubeIframeAPIReady() will handle it automatically
+  // Initialize player directly — Invidious doesn't need API callback
+  initPlayer(videoId);
 }
 
 /* ---------------------------------------------------------------
@@ -2453,22 +2647,27 @@ function updateMediaState(state) {
    alive even when the YT iframe is paused/muted.
 --------------------------------------------------------------- */
 function startAudioKeepAlive() {
-  const audio = document.getElementById('bgAudio');
-  if (!audio) return;
-
-  // Create AudioContext + gain node set to near-zero volume
-  if (!bgAudioCtx) {
-    try {
-      bgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const src  = bgAudioCtx.createMediaElementSource(audio);
-      const gain = bgAudioCtx.createGain();
-      gain.gain.value = 0.001; // virtually silent but keeps session alive
-      src.connect(gain);
-      gain.connect(bgAudioCtx.destination);
-    } catch (e) { console.warn('AudioContext:', e); }
+  // الآن الـ bgAudio بيشغّل stream حقيقي — مش محتاجين keep-alive وهمي
+  const audio = getBgAudio();
+  if (audio && audio.src && audio.paused) {
+    audio.play().catch(() => {});
   }
+}
 
-  audio.play().catch(() => {});
+/* ---------------------------------------------------------------
+   K3b. Audio event handlers
+--------------------------------------------------------------- */
+function handleAudioEnded() {
+  updateMediaState('none');
+  document.getElementById('infoState').textContent = 'انتهى الفيديو';
+}
+
+function handleAudioError() {
+  console.warn('⚠️ Background audio error — stream may have expired');
+  // أعد جلب الـ stream لو انتهت صلاحيته
+  if (currentVideoId) {
+    setTimeout(() => fetchAndPlayAudio(currentVideoId), 2000);
+  }
 }
 
 /* ---------------------------------------------------------------
@@ -2591,7 +2790,7 @@ function injectPWAManifest() {
 function registerServiceWorker() {
   // Hard requirement: browser must support SW
   if (!('serviceWorker' in navigator)) {
-    console.info('ℹ️ Service Workers not supported in this browser.');
+    console.log('ℹ️ Service Workers not supported in this browser.');
     return;
   }
 
@@ -2603,7 +2802,7 @@ function registerServiceWorker() {
 
   if (!isSecure) {
     // Silent skip on plain HTTP — no red console errors
-    console.info('ℹ️ Service Worker skipped: needs HTTPS or localhost. ' +
+    console.log('ℹ️ Service Worker skipped: needs HTTPS or localhost. ' +
                  'Deploy to Netlify/Vercel for full PWA support.');
     return;
   }
@@ -2788,7 +2987,7 @@ function searchAndLoad(query) {
      JAVASCRIPT — SECTION N: SPEED CONTROL
 ============================================================ */
 const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
-let currentSpeed = 1;
+// currentSpeed declared in Section A1 — no redeclaration here
 
 function buildSpeedGrid() {
   document.getElementById('speedGrid').innerHTML = SPEEDS.map(s => `
@@ -2816,7 +3015,7 @@ function setSpeed(s) {
 
 
 /* ============================================================
-     JAVASCRIPT — SECTION O: WATCH HISTORY
+     JAVASCRIPT — SECTION O: WATCH HISTORY (محسّن بتفاصيل كاملة)
 ============================================================ */
 const HISTORY_KEY = 'focusplay_history';
 
@@ -2824,46 +3023,180 @@ function getHistory() {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
 }
 function saveHistory(arr) {
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0, 50))); } catch {}
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0, 100))); } catch {}
 }
 
 /* ---------------------------------------------------------------
-   O1. Add current video to history
+   O1. جيب تفاصيل الفيديو من Invidious API
+   بيرجع: title, channel, duration, viewCount, published
 --------------------------------------------------------------- */
-function addToHistory(videoId, title) {
-  const history = getHistory().filter(h => h.id !== videoId);
-  history.unshift({
-    id: videoId,
-    title: title || `فيديو — ${videoId}`,
-    thumb: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-    ts: new Date().toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }),
-  });
-  saveHistory(history);
-  renderHistory();
+async function fetchVideoDetails(videoId) {
+  const apis = INVIDIOUS_INSTANCES.map(h => `${h}/api/v1/videos/${videoId}?fields=title,author,lengthSeconds,viewCount,publishedText,authorId`);
+  for (const url of apis) {
+    try {
+      const res  = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      return {
+        title:     data.title        || `فيديو — ${videoId}`,
+        channel:   data.author       || 'قناة غير معروفة',
+        channelId: data.authorId     || '',
+        duration:  formatDuration(data.lengthSeconds || 0),
+        views:     formatViews(data.viewCount || 0),
+        published: data.publishedText || '',
+      };
+    } catch { continue; }
+  }
+  return { title: `فيديو — ${videoId}`, channel: '—', duration: '—', views: '—', published: '—', channelId: '' };
 }
 
 /* ---------------------------------------------------------------
-   O2. Render history list
+   O2. مساعد — تنسيق المدة
+--------------------------------------------------------------- */
+function formatDuration(secs) {
+  if (!secs) return '—';
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+/* ---------------------------------------------------------------
+   O3. مساعد — تنسيق المشاهدات
+--------------------------------------------------------------- */
+function formatViews(n) {
+  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B مشاهدة';
+  if (n >= 1_000_000)     return (n / 1_000_000).toFixed(1)     + 'M مشاهدة';
+  if (n >= 1_000)         return (n / 1_000).toFixed(1)         + 'K مشاهدة';
+  return n + ' مشاهدة';
+}
+
+/* ---------------------------------------------------------------
+   O4. أضف الفيديو للسجل مع جلب التفاصيل تلقائياً
+--------------------------------------------------------------- */
+async function addToHistory(videoId, fallbackTitle) {
+  // أضف بيانات أساسية فوراً
+  const basic = {
+    id:        videoId,
+    title:     fallbackTitle || `فيديو — ${videoId}`,
+    channel:   '…جاري التحميل',
+    duration:  '—',
+    views:     '—',
+    published: '—',
+    channelId: '',
+    thumb:     `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+    watchedAt: new Date().toLocaleString('ar-EG', { weekday:'short', hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short', year:'numeric' }),
+    watchCount: 1,
+  };
+
+  const history = getHistory();
+  const existing = history.find(h => h.id === videoId);
+  if (existing) {
+    existing.watchCount = (existing.watchCount || 1) + 1;
+    existing.watchedAt  = basic.watchedAt;
+    saveHistory(history);
+  } else {
+    history.unshift(basic);
+    saveHistory(history);
+  }
+  renderHistory();
+
+  // جيب التفاصيل الكاملة في الخلفية وحدّث السجل
+  fetchVideoDetails(videoId).then(details => {
+    const hist = getHistory();
+    const item = hist.find(h => h.id === videoId);
+    if (item) {
+      item.title     = details.title;
+      item.channel   = details.channel;
+      item.channelId = details.channelId;
+      item.duration  = details.duration;
+      item.views     = details.views;
+      item.published = details.published;
+      saveHistory(hist);
+      renderHistory();
+
+      // حدّث عنوان الفيديو في الصفحة والـ MediaSession
+      document.getElementById('videoTitle').textContent = details.title;
+      document.getElementById('videoMeta').textContent  = `${details.channel} · ${details.duration}`;
+      document.getElementById('infoId').textContent     = videoId;
+      activateMediaSession(details.title, details.channel);
+    }
+  });
+}
+
+/* ---------------------------------------------------------------
+   O5. رسم السجل — بطاقات تفصيلية 5 سطور لكل فيديو
 --------------------------------------------------------------- */
 function renderHistory() {
-  const list = document.getElementById('historyList');
+  const list    = document.getElementById('historyList');
   const history = getHistory();
+
   if (!history.length) {
-    list.innerHTML = '<p class="notes-empty">لا يوجد سجل بعد</p>';
+    list.innerHTML = '<p class="notes-empty">لا يوجد سجل بعد 📺</p>';
     return;
   }
+
   list.innerHTML = history.map(h => `
-    <div class="history-item" onclick="loadFromHistory('${h.id}')">
-      <img class="history-thumb" src="${h.thumb}" alt="" loading="lazy" onerror="this.style.display='none'" />
-      <div class="history-info">
-        <div class="history-title">${escapeHtml(h.title)}</div>
-        <div class="history-time">${h.ts}</div>
+    <div class="history-item" style="flex-direction:column;align-items:stretch;gap:.6rem;padding:.85rem;"
+         onclick="loadFromHistory('${h.id}')">
+
+      <!-- الصف الأول: صورة + عنوان + حذف -->
+      <div style="display:flex;gap:.7rem;align-items:flex-start;">
+        <div style="position:relative;flex-shrink:0;">
+          <img class="history-thumb" src="${h.thumb}" alt="" loading="lazy"
+               onerror="this.src=''" style="width:90px;height:52px;" />
+          <span style="position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.75);
+                       color:#fff;font-size:.62rem;font-family:var(--font-mono);
+                       padding:1px 4px;border-radius:3px;">${h.duration}</span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="history-title" style="font-size:.85rem;font-weight:700;
+               white-space:normal;line-height:1.4;margin-bottom:3px;">${escapeHtml(h.title)}</div>
+          <div style="font-size:.72rem;color:var(--sky-400);font-weight:600;">${escapeHtml(h.channel)}</div>
+        </div>
+        <button class="history-del" onclick="removeFromHistory(event,'${h.id}')"
+                style="flex-shrink:0;margin-top:-2px;">✕</button>
       </div>
-      <button class="history-del" onclick="removeFromHistory(event,'${h.id}')">✕</button>
+
+      <!-- الصف الثاني: إحصائيات -->
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <span style="font-size:.7rem;color:var(--muted);background:var(--slate-800);
+                     padding:2px 8px;border-radius:999px;">👁 ${h.views}</span>
+        <span style="font-size:.7rem;color:var(--muted);background:var(--slate-800);
+                     padding:2px 8px;border-radius:999px;">📅 ${h.published}</span>
+        <span style="font-size:.7rem;color:var(--muted);background:var(--slate-800);
+                     padding:2px 8px;border-radius:999px;">🔁 شاهدت ${h.watchCount || 1}×</span>
+        <span style="font-size:.7rem;color:var(--slate-600);background:var(--slate-800);
+                     padding:2px 8px;border-radius:999px;font-family:var(--font-mono);">⏱ ${h.watchedAt}</span>
+      </div>
+
+      <!-- الصف الثالث: أزرار سريعة -->
+      <div style="display:flex;gap:.4rem;" onclick="event.stopPropagation()">
+        <button onclick="loadFromHistory('${h.id}')"
+          style="flex:1;padding:5px;background:var(--sky-600);border:none;border-radius:7px;
+                 color:#fff;font-size:.74rem;font-weight:700;cursor:pointer;font-family:var(--font-ui);">
+          ▶ تشغيل
+        </button>
+        <button onclick="copyHistoryLink('${h.id}')"
+          style="padding:5px 10px;background:transparent;border:1px solid var(--border);
+                 border-radius:7px;color:var(--muted);font-size:.74rem;cursor:pointer;font-family:var(--font-ui);">
+          🔗 نسخ
+        </button>
+        <a href="https://www.youtube.com/watch?v=${h.id}" target="_blank" rel="noopener"
+          style="padding:5px 10px;background:transparent;border:1px solid var(--border);
+                 border-radius:7px;color:var(--muted);font-size:.74rem;cursor:pointer;
+                 font-family:var(--font-ui);text-decoration:none;display:flex;align-items:center;">
+          YT ↗
+        </a>
+      </div>
     </div>
   `).join('');
 }
 
+/* ---------------------------------------------------------------
+   O6. وظائف مساعدة للسجل
+--------------------------------------------------------------- */
 function loadFromHistory(id) {
   document.getElementById('urlInput').value = `https://www.youtube.com/watch?v=${id}`;
   loadVideo();
@@ -2872,6 +3205,11 @@ function removeFromHistory(e, id) {
   e.stopPropagation();
   saveHistory(getHistory().filter(h => h.id !== id));
   renderHistory();
+  showToast('🗑️ تم الحذف من السجل', 'success');
+}
+function copyHistoryLink(id) {
+  const url = `https://www.youtube.com/watch?v=${id}`;
+  navigator.clipboard?.writeText(url).then(() => showToast('🔗 تم نسخ الرابط', 'success')).catch(() => {});
 }
 function clearHistory() {
   if (!confirm('مسح سجل المشاهدة كامل؟')) return;
@@ -2885,6 +3223,7 @@ function toggleHistoryCard() {
   renderHistory();
   closeSettings();
 }
+
 
 
 /* ============================================================
@@ -3174,6 +3513,243 @@ ${notes.map(n => `<div class="note"><p>${n.text}</p><div class="ts">${n.ts}</div
 
 
 /* ============================================================
+     JAVASCRIPT — SECTION V: MINI PLAYER
+============================================================ */
+let miniPlayerActive = false;
+let miniPaused       = false;
+
+/* Show mini player when user scrolls past the main player */
+window.addEventListener('scroll', () => {
+  const section = document.getElementById('player-section');
+  if (!section || !currentVideoId) return;
+  const rect = section.getBoundingClientRect();
+  if (rect.bottom < 0 && !miniPlayerActive) {
+    showMiniPlayer();
+  } else if (rect.bottom >= 0 && miniPlayerActive) {
+    hideMiniPlayer();
+  }
+}, { passive: true });
+
+function showMiniPlayer() {
+  if (!currentVideoId) return;
+  miniPlayerActive = true;
+  const mp    = document.getElementById('miniPlayer');
+  const base  = getCurrentInstance();
+  document.getElementById('miniPlayerVideo').innerHTML = `
+    <iframe src="${base}/embed/${currentVideoId}?autoplay=1&mute=0"
+      style="width:100%;height:100%;border:none;"
+      allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+  document.getElementById('miniTitle').textContent =
+    document.getElementById('videoTitle').textContent || 'FocusPlay';
+  mp.classList.add('visible');
+}
+
+function hideMiniPlayer() {
+  miniPlayerActive = false;
+  document.getElementById('miniPlayer').classList.remove('visible');
+  document.getElementById('miniPlayerVideo').innerHTML = '';
+}
+
+function closeMiniPlayer() {
+  miniPlayerActive = false;
+  hideMiniPlayer();
+}
+
+function expandPlayer() {
+  hideMiniPlayer();
+  document.getElementById('player-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function miniPlayPause() {
+  miniPaused = !miniPaused;
+  document.getElementById('miniPlayBtn').textContent = miniPaused ? '▶' : '⏸';
+  const iframe = document.querySelector('#miniPlayerVideo iframe');
+  if (iframe) {
+    const fn = miniPaused ? 'pauseVideo' : 'playVideo';
+    iframe.contentWindow?.postMessage(`{"event":"command","func":"${fn}","args":""}`, '*');
+  }
+  const audio = getBgAudio();
+  if (audio) miniPaused ? audio.pause() : audio.play().catch(()=>{});
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION W: PLAYLIST
+============================================================ */
+const PLAYLIST_KEY = 'focusplay_playlist';
+let playlistIndex  = 0;
+let shuffleOn      = false;
+let repeatOn       = false;
+
+function getPlaylist() {
+  try { return JSON.parse(localStorage.getItem(PLAYLIST_KEY)) || []; } catch { return []; }
+}
+function savePlaylist(arr) {
+  try { localStorage.setItem(PLAYLIST_KEY, JSON.stringify(arr)); } catch {}
+}
+
+/* W1. Add video to playlist */
+function addToPlaylist() {
+  const input = document.getElementById('plInput').value.trim();
+  if (!input) { showToast('⚠️ أدخل رابط أولاً', 'error'); return; }
+  const id = extractVideoId(input);
+  if (!id) { showToast('❌ رابط غير صحيح', 'error'); return; }
+  const pl = getPlaylist();
+  if (pl.find(v => v.id === id)) { showToast('⚠️ موجود بالفعل في القائمة', 'error'); return; }
+  pl.push({ id, title: `فيديو — ${id}`, thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg` });
+  savePlaylist(pl);
+  document.getElementById('plInput').value = '';
+  renderPlaylist();
+  // جيب العنوان في الخلفية
+  fetchVideoDetails(id).then(d => {
+    const p = getPlaylist(); const item = p.find(v => v.id === id);
+    if (item) { item.title = d.title; item.channel = d.channel; savePlaylist(p); renderPlaylist(); }
+  });
+  showToast('✅ تمت الإضافة للقائمة', 'success');
+}
+
+/* W2. Render playlist */
+function renderPlaylist() {
+  const pl   = getPlaylist();
+  const list = document.getElementById('playlistItems');
+  if (!pl.length) { list.innerHTML = '<p class="notes-empty">القائمة فارغة 🎵</p>'; return; }
+  list.innerHTML = pl.map((v, i) => `
+    <div class="playlist-item ${currentVideoId === v.id ? 'active' : ''}" onclick="playFromPlaylist(${i})">
+      <span class="pl-num">${currentVideoId === v.id ? '▶' : i + 1}</span>
+      <img class="pl-thumb" src="${v.thumb}" loading="lazy" onerror="this.style.display='none'" />
+      <div class="pl-info">
+        <div class="pl-title">${escapeHtml(v.title)}</div>
+        <div class="pl-meta">${v.channel || ''}</div>
+      </div>
+      <button class="pl-del" onclick="removeFromPlaylist(event,${i})">✕</button>
+    </div>`).join('');
+}
+
+/* W3. Play from playlist */
+function playFromPlaylist(idx) {
+  const pl = getPlaylist();
+  if (!pl[idx]) return;
+  playlistIndex = idx;
+  document.getElementById('urlInput').value = `https://www.youtube.com/watch?v=${pl[idx].id}`;
+  loadVideo();
+  renderPlaylist();
+}
+
+/* W4. Next / Prev */
+function playNext() {
+  const pl = getPlaylist();
+  if (!pl.length) return;
+  let next;
+  if (shuffleOn) {
+    next = Math.floor(Math.random() * pl.length);
+  } else {
+    next = (playlistIndex + 1) % pl.length;
+  }
+  playFromPlaylist(next);
+}
+
+function playPrev() {
+  const pl = getPlaylist();
+  if (!pl.length) return;
+  const prev = (playlistIndex - 1 + pl.length) % pl.length;
+  playFromPlaylist(prev);
+}
+
+/* W5. Shuffle / Repeat toggles */
+function toggleShuffle() {
+  shuffleOn = !shuffleOn;
+  const btn = document.getElementById('shuffleBtn');
+  btn.classList.toggle('active', shuffleOn);
+  btn.style.color = shuffleOn ? 'var(--sky-400)' : '';
+  showToast(shuffleOn ? '🔀 عشوائي مفعّل' : '🔀 عشوائي معطّل', 'success');
+}
+
+function toggleRepeat() {
+  repeatOn = !repeatOn;
+  const btn = document.getElementById('repeatBtn');
+  btn.classList.toggle('active', repeatOn);
+  btn.style.color = repeatOn ? 'var(--sky-400)' : '';
+  showToast(repeatOn ? '🔁 تكرار مفعّل' : '🔁 تكرار معطّل', 'success');
+}
+
+/* W6. Remove / Clear */
+function removeFromPlaylist(e, idx) {
+  e.stopPropagation();
+  const pl = getPlaylist();
+  pl.splice(idx, 1);
+  savePlaylist(pl);
+  renderPlaylist();
+}
+function clearPlaylist() {
+  if (!confirm('مسح قائمة التشغيل كاملة؟')) return;
+  localStorage.removeItem(PLAYLIST_KEY);
+  renderPlaylist();
+  showToast('🗑️ تم مسح القائمة', 'success');
+}
+
+/* W7. Auto-play next when audio ends */
+function handleAudioEnded() {
+  updateMediaState('none');
+  document.getElementById('infoState').textContent = 'انتهى الفيديو';
+  const pl = getPlaylist();
+  if (pl.length > 1 || repeatOn) {
+    setTimeout(() => repeatOn ? playFromPlaylist(playlistIndex) : playNext(), 1500);
+  }
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION X: STATS
+============================================================ */
+function renderStats() {
+  const history  = getHistory();
+  const notes    = getNotes();
+  const bookmarks = (() => {
+    try {
+      const all = JSON.parse(localStorage.getItem('focusplay_bookmarks')) || {};
+      return Object.values(all).flat().length;
+    } catch { return 0; }
+  })();
+
+  const totalWatched = history.length;
+  const totalRewatched = history.filter(h => (h.watchCount || 1) > 1).length;
+  const totalMins = history.reduce((acc, h) => {
+    const dur = h.duration || '0:00';
+    const parts = dur.split(':').map(Number);
+    return acc + (parts.length === 3 ? parts[0]*60 + parts[1] : parts[0]);
+  }, 0);
+  const topChannel = (() => {
+    const counts = {};
+    history.forEach(h => { if (h.channel && h.channel !== '—') counts[h.channel] = (counts[h.channel]||0)+1; });
+    return Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+  })();
+
+  const stats = [
+    { val: totalWatched,      lbl: '📺 فيديوهات شاهدتها' },
+    { val: `${totalMins}د`,   lbl: '⏱ دقائق تقريبية' },
+    { val: notes.length,      lbl: '📝 ملاحظة محفوظة' },
+    { val: bookmarks,         lbl: '🔖 إشارة محفوظة' },
+    { val: totalRewatched,    lbl: '🔁 أعدت مشاهدتها' },
+    { val: getPlaylist().length, lbl: '🎵 في القائمة' },
+  ];
+
+  document.getElementById('statsGrid').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-val">${s.val}</div>
+      <div class="stat-lbl">${s.lbl}</div>
+    </div>`).join('');
+
+  if (topChannel !== '—') {
+    document.getElementById('statsGrid').innerHTML += `
+      <div class="stat-card" style="grid-column:span 2;">
+        <div class="stat-lbl">🏆 أكتر قناة بتتفرج عليها</div>
+        <div class="stat-val" style="font-size:.9rem;margin-top:4px;">${escapeHtml(topChannel)}</div>
+      </div>`;
+  }
+}
+
+
+/* ============================================================
      JAVASCRIPT — SECTION G: INIT  (updated)
 ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -3186,7 +3762,9 @@ document.addEventListener('DOMContentLoaded', () => {
   buildSleepChips();
   loadSavedTheme();
   renderHistory();
-  console.log('🚀 FocusPlay v2.0 — by M O R A — initialized');
+  renderPlaylist();
+  renderStats();
+  console.log('🚀 FocusPlay v3.0 — by M O R A — initialized');
 });
 </script>
 
