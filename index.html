@@ -16,7 +16,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-  <!-- Invidious player — no YouTube API needed, no ads -->
+  <!-- ===== YouTube IFrame API ===== -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 
   <style>
     /* ============================================================
@@ -1297,11 +1298,16 @@
 
   <ul class="nav-links" id="navLinks">
     <li><a href="#player-section">المشغّل</a></li>
+    <li><a href="#posts">المنشورات</a></li>
+    <li><a href="#about">عن المنصة</a></li>
     <li><a href="#bandwidth-section">استهلاك النت</a></li>
     <li><a href="#" onclick="openSearch();return false;">🔍 بحث</a></li>
     <li><a href="#" onclick="openSettings();return false;">⚙️ إعدادات</a></li>
     <li><a href="#player-section" class="nav-btn">ابدأ المشاهدة</a></li>
   </ul>
+
+  <!-- User Avatar in Navbar -->
+  <div id="navAvatar" onclick="openSettings()" style="display:none;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));border:2px solid var(--sky-500);cursor:pointer;overflow:hidden;flex-shrink:0;align-items:center;justify-content:center;font-size:1rem;transition:transform var(--t-fast);box-shadow:var(--glow);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform=''"></div>
 
   <button class="hamburger" id="hamburger" aria-label="قائمة التنقل">
     <span></span><span></span><span></span>
@@ -1624,6 +1630,159 @@
 </section>
 
 <!-- ============================================================
+     POSTS SECTION
+============================================================ -->
+<section id="posts" style="position:relative;z-index:1;max-width:700px;margin:0 auto;padding:4rem 2rem 2rem;">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border:1px solid rgba(14,165,233,.3);border-radius:999px;background:rgba(14,165,233,.07);font-size:.78rem;color:var(--sky-400);font-weight:600;margin-bottom:1rem;">
+      <div class="badge-dot"></div> المنشورات
+    </div>
+    <h2 style="font-size:1.8rem;font-weight:900;margin-bottom:.5rem;">شارك <span style="color:var(--sky-400)">تجربتك</span></h2>
+    <p style="color:var(--muted);font-size:.88rem;">شارك فيديو، فكرة، أو توصية مع المجتمع 💬</p>
+  </div>
+
+  <!-- Post Composer -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.25rem;margin-bottom:1.5rem;transition:border-color var(--t-med);" id="postComposer">
+    <div style="display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.75rem;">
+      <div id="composerAvatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden;"></div>
+      <textarea id="postInput" placeholder="شارك فيديو أو فكرة… يمكنك إضافة رابط يوتيوب 🎬"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.75rem 1rem;color:var(--text);font-family:var(--font-ui);font-size:.88rem;resize:none;outline:none;min-height:80px;direction:rtl;line-height:1.6;transition:border-color var(--t-fast);"
+        oninput="this.style.borderColor='var(--sky-500)';updatePostPreview(this.value)"
+        rows="3"></textarea>
+    </div>
+    <!-- Post Preview -->
+    <div id="postVideoPreview" style="display:none;background:var(--surface2);border-radius:12px;padding:.75rem;margin-bottom:.75rem;display:none;align-items:center;gap:.75rem;">
+      <img id="postThumb" src="" style="width:80px;height:45px;border-radius:6px;object-fit:cover;" />
+      <div>
+        <div id="postPreviewTitle" style="font-size:.8rem;font-weight:600;color:var(--text);"></div>
+        <div style="font-size:.72rem;color:var(--sky-400);">🎬 يوتيوب</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span id="postCharCount" style="font-size:.72rem;color:var(--slate-600);">0 / 280</span>
+      <button onclick="publishPost()" style="padding:8px 20px;background:linear-gradient(135deg,var(--sky-600),var(--sky-500));border:none;border-radius:10px;color:#fff;font-family:var(--font-ui);font-size:.85rem;font-weight:700;cursor:pointer;">نشر 🚀</button>
+    </div>
+  </div>
+
+  <!-- Posts Feed -->
+  <div id="postsFeed"></div>
+</section>
+
+<!-- ============================================================
+     ABOUT SECTION
+============================================================ -->
+<section id="about" style="position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:5rem 2rem;">
+
+  <!-- Heading -->
+  <div style="text-align:center;margin-bottom:3.5rem;">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border:1px solid rgba(14,165,233,.3);border-radius:999px;background:rgba(14,165,233,.07);font-size:.78rem;color:var(--sky-400);font-weight:600;margin-bottom:1rem;">
+      <div class="badge-dot"></div> عن المنصة
+    </div>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;letter-spacing:-1px;margin-bottom:.75rem;">
+      ليه <span style="background:linear-gradient(135deg,var(--sky-400),var(--sky-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">FocusPlay</span>؟
+    </h2>
+    <p style="color:var(--muted);font-size:1rem;max-width:560px;margin:0 auto;line-height:1.8;">
+      مش مجرد مشغّل فيديو — ده مساحتك الشخصية للتعلم والتركيز بعيداً عن ضوضاء الإنترنت
+    </p>
+  </div>
+
+  <!-- Story -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-40px;left:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.1) 0%,transparent 70%);pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.08) 0%,transparent 70%);pointer-events:none;"></div>
+
+    <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.5rem;">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;box-shadow:var(--glow);">💡</div>
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.4rem;">الفكرة</h3>
+        <p style="color:var(--muted);font-size:.9rem;line-height:1.8;">
+          بدأت الفكرة من مشكلة حقيقية — كل ما بتفتح يوتيوب تلاقي نفسك غرقت في إعلانات ومقاطع مقترحة بعيدة عن اللي جيت عشانه. 
+          <strong style="color:var(--text);">FocusPlay</strong> جاء عشان يحل المشكلة دي بشكل بسيط وأنيق.
+        </p>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.5rem;">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;box-shadow:var(--glow);">🎯</div>
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.4rem;">الهدف</h3>
+        <p style="color:var(--muted);font-size:.9rem;line-height:1.8;">
+          منصة نظيفة وسريعة تخليك تشتغل وتتعلم وتستمتع بالمحتوى اللي اخترته — من غير ما حاجة تشتت تركيزك. 
+          سواء كنت بتذاكر، بتشتغل، أو بس عايز تسمع موسيقى وإنت نايم بدون ما التليفون يوقف الصوت.
+        </p>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:1rem;">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;box-shadow:var(--glow);">🔵</div>
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.4rem;">من وراه؟</h3>
+        <p style="color:var(--muted);font-size:.9rem;line-height:1.8;">
+          مشروع طالب في <strong style="color:var(--text);">نظم ومعلومات</strong> — بُني بالكامل بـ HTML وCSS وJavaScript خالص بدون أي Framework. 
+          فكرة وتنفيذ <strong style="color:var(--sky-400);">M O R A</strong> 🔵
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:transform .3s,border-color .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--sky-500)';this.style.boxShadow='0 0 32px rgba(14,165,233,.2)'" onmouseout="this.style.transform='';this.style.borderColor='';this.style.boxShadow=''">
+      <div style="font-size:1.8rem;margin-bottom:.6rem;">🚫</div>
+      <h4 style="font-weight:700;margin-bottom:.3rem;font-size:.9rem;">بدون إعلانات</h4>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.6;">شاهد محتواك من غير مقاطعة — تجربة نظيفة 100%</p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:transform .3s,border-color .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--sky-500)';this.style.boxShadow='0 0 32px rgba(14,165,233,.2)'" onmouseout="this.style.transform='';this.style.borderColor='';this.style.boxShadow=''">
+      <div style="font-size:1.8rem;margin-bottom:.6rem;">🔒</div>
+      <h4 style="font-weight:700;margin-bottom:.3rem;font-size:.9rem;">شاشة القفل</h4>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.6;">الصوت بيفضل شغّال حتى بعد قفل التليفون — زي SoundCloud بالظبط</p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:transform .3s,border-color .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--sky-500)';this.style.boxShadow='0 0 32px rgba(14,165,233,.2)'" onmouseout="this.style.transform='';this.style.borderColor='';this.style.boxShadow=''">
+      <div style="font-size:1.8rem;margin-bottom:.6rem;">📝</div>
+      <h4 style="font-weight:700;margin-bottom:.3rem;font-size:.9rem;">مفكرة ذكية</h4>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.6;">سجّل أفكارك وملاحظاتك أثناء المشاهدة — بتتحفظ تلقائياً مع التوقيت</p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:transform .3s,border-color .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--sky-500)';this.style.boxShadow='0 0 32px rgba(14,165,233,.2)'" onmouseout="this.style.transform='';this.style.borderColor='';this.style.boxShadow=''">
+      <div style="font-size:1.8rem;margin-bottom:.6rem;">📲</div>
+      <h4 style="font-weight:700;margin-bottom:.3rem;font-size:.9rem;">تطبيق موبايل</h4>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.6;">نزّله على هاتفك كتطبيق PWA — يشتغل حتى بدون إنترنت</p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:transform .3s,border-color .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--sky-500)';this.style.boxShadow='0 0 32px rgba(14,165,233,.2)'" onmouseout="this.style.transform='';this.style.borderColor='';this.style.boxShadow=''">
+      <div style="font-size:1.8rem;margin-bottom:.6rem;">🎵</div>
+      <h4 style="font-weight:700;margin-bottom:.3rem;font-size:.9rem;">قائمة تشغيل</h4>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.6;">رتّب فيديوهاتك في قائمة وشغّلها تسلسل أو عشوائي</p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:transform .3s,border-color .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--sky-500)';this.style.boxShadow='0 0 32px rgba(14,165,233,.2)'" onmouseout="this.style.transform='';this.style.borderColor='';this.style.boxShadow=''">
+      <div style="font-size:1.8rem;margin-bottom:.6rem;">⚡</div>
+      <h4 style="font-weight:700;margin-bottom:.3rem;font-size:.9rem;">تحكم كامل</h4>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.6;">سرعة التشغيل، مؤقت النوم، وضع السينما، نافذة عائمة وأكتر</p>
+    </div>
+
+  </div>
+
+  <!-- Tech Stack -->
+  <div style="margin-top:2rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;">
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:.75rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;">بُني بـ</p>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;">
+      <span style="padding:5px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--text);font-family:var(--font-mono);">HTML5</span>
+      <span style="padding:5px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--text);font-family:var(--font-mono);">CSS3</span>
+      <span style="padding:5px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--text);font-family:var(--font-mono);">Vanilla JS</span>
+      <span style="padding:5px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--sky-400);font-family:var(--font-mono);">YouTube IFrame API</span>
+      <span style="padding:5px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--sky-400);font-family:var(--font-mono);">MediaSession API</span>
+      <span style="padding:5px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--sky-400);font-family:var(--font-mono);">PWA</span>
+      <span style="padding:5px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--sky-400);font-family:var(--font-mono);">LocalStorage</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================================
      FOOTER
 ============================================================ -->
 <footer>
@@ -1660,6 +1819,20 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
     <h3 style="font-size:1.1rem;font-weight:700;">⚙️ الإعدادات</h3>
     <button onclick="closeSettings()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;">✕</button>
+  </div>
+
+  <!-- Username + Avatar -->
+  <div class="settings-section">
+    <div class="settings-label">👤 ملفك الشخصي</div>
+    <div style="display:flex;align-items:center;gap:.75rem;margin-top:.5rem;padding:.75rem;background:var(--surface2);border-radius:10px;">
+      <div id="settingsAvatarPreview" onclick="document.getElementById('settingsAvatarInput').click()" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;cursor:pointer;overflow:hidden;border:2px solid var(--sky-500);">👤</div>
+      <input type="file" id="settingsAvatarInput" accept="image/*" style="display:none" onchange="handleAvatarUploadSettings(event)" />
+      <div style="flex:1;">
+        <div id="settingsUsername" style="font-weight:700;font-size:.9rem;">—</div>
+        <div id="settingsBadge" style="font-size:.7rem;color:var(--sky-400);margin-top:2px;"></div>
+      </div>
+      <button onclick="changeUsername()" style="padding:5px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-family:var(--font-ui);font-size:.75rem;cursor:pointer;">تغيير</button>
+    </div>
   </div>
 
   <!-- Theme -->
@@ -1740,105 +1913,154 @@
        onerror="handleAudioError()"></audio>
 
 <!-- ============================================================
+     USERNAME WELCOME MODAL (مع صورة + Avatar)
+============================================================ -->
+<div id="usernameModal" style="position:fixed;inset:0;z-index:99999;background:rgba(2,6,23,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto;">
+  <div style="background:var(--slate-900);border:1px solid var(--sky-500);border-radius:24px;padding:2rem;max-width:460px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.7),var(--glow);animation:fadeSlideDown .4s ease;margin:auto;">
+
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎬</div>
+    <h2 style="font-size:1.5rem;font-weight:900;margin-bottom:.4rem;">أهلاً في <span style="color:var(--sky-400)">FocusPlay</span></h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem;line-height:1.7;">خصّص ملفك الشخصي عشان تبدأ تجربتك 👇</p>
+
+    <!-- Avatar Preview -->
+    <div style="position:relative;width:90px;height:90px;margin:0 auto 1.25rem;cursor:pointer;" onclick="document.getElementById('avatarFileInput').click()">
+      <div id="avatarPreview" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));display:flex;align-items:center;justify-content:center;font-size:2.2rem;border:3px solid var(--sky-500);box-shadow:var(--glow);overflow:hidden;">
+        🎭
+      </div>
+      <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--sky-500);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;border:2px solid var(--slate-900);">📷</div>
+    </div>
+    <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)" />
+
+    <!-- Avatar Grid -->
+    <div style="margin-bottom:1.25rem;">
+      <p style="font-size:.72rem;color:var(--muted);margin-bottom:.6rem;font-weight:600;">أو اختر Avatar جاهز</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;" id="avatarGrid">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- Name Input -->
+    <input id="usernameInput" type="text" maxlength="20" placeholder="اسمك هنا…"
+      style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.85rem 1rem;color:var(--text);font-family:var(--font-ui);font-size:1rem;outline:none;text-align:center;margin-bottom:1rem;direction:rtl;transition:border-color var(--t-fast);"
+      onkeydown="if(event.key==='Enter')saveUsername()"
+      oninput="this.style.borderColor='var(--sky-500)'" />
+
+    <button onclick="saveUsername()" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--sky-600),var(--sky-500));border:none;border-radius:12px;color:#fff;font-family:var(--font-ui);font-size:1rem;font-weight:700;cursor:pointer;">
+      ابدأ المشاهدة 🚀
+    </button>
+    <p style="margin-top:.75rem;font-size:.7rem;color:var(--slate-600);">بياناتك على جهازك فقط 🔒</p>
+  </div>
+</div>
+
+<!-- ============================================================
      TOAST CONTAINER
 ============================================================ -->
 <div class="toast-container" id="toastContainer"></div>
 
 
 <!-- ============================================================
-     JAVASCRIPT — SECTION A: INVIDIOUS PLAYER (بدون إعلانات)
+     JAVASCRIPT — SECTION A: YOUTUBE IFRAME API (رجعنا للأصل)
 ============================================================ -->
 <script>
 /* ---------------------------------------------------------------
    A1. Global State
 --------------------------------------------------------------- */
-let player         = null;       // Invidious iframe element
-let currentVideoId = '';
-let isTheaterMode  = false;
+let player          = null;
+let currentVideoId  = '';
+let isTheaterMode   = false;
 let qualityInterval = null;
-let currentSpeed   = 1;
+let currentSpeed    = 1;
 
 /* ---------------------------------------------------------------
-   A2. Invidious instances — fallback chain if one is down
-   كل دي سيرفرات Invidious مفتوحة المصدر — بتشغّل يوتيوب بدون إعلانات
+   A2. YouTube IFrame API Ready
 --------------------------------------------------------------- */
-const INVIDIOUS_INSTANCES = [
-  'https://inv.nadeko.net',
-  'https://invidious.nerdvpn.de',
-  'https://invidious.privacydev.net',
-  'https://vid.puffyan.us',
-  'https://invidious.slipfox.xyz',
-];
-let instanceIndex = 0;
-
-function getCurrentInstance() {
-  return INVIDIOUS_INSTANCES[instanceIndex % INVIDIOUS_INSTANCES.length];
+function onYouTubeIframeAPIReady() {
+  console.log('✅ YouTube IFrame API ready');
+  if (currentVideoId) initPlayer(currentVideoId);
 }
 
 /* ---------------------------------------------------------------
-   A3. Initialize Invidious Player
-   وضع مزدوج: iframe للصورة + <audio> حقيقي للصوت في الخلفية
+   A3. Initialize YouTube Player
 --------------------------------------------------------------- */
 function initPlayer(videoId) {
-  clearInterval(qualityInterval);
-  player = null;
+  if (player) { clearInterval(qualityInterval); player.destroy(); player = null; }
+  document.getElementById('yt-player').innerHTML = '';
 
-  const wrapper = document.getElementById('yt-player');
-  const base    = getCurrentInstance();
-  const params  = new URLSearchParams({
-    autoplay: 1, rel: 0, local: 'true',
-    listen: 0, speed: currentSpeed, quality: 'dash',
+  player = new YT.Player('yt-player', {
+    videoId,
+    playerVars: {
+      autoplay: 1, rel: 0, modestbranding: 1,
+      iv_load_policy: 3, fs: 1, cc_load_policy: 0,
+      hl: 'ar', playsinline: 1,
+    },
+    events: {
+      onReady:       onPlayerReady,
+      onStateChange: onPlayerStateChange,
+      onError:       onPlayerError,
+    },
   });
-
-  wrapper.innerHTML = `
-    <iframe
-      id="inv-iframe"
-      src="${base}/embed/${videoId}?${params}"
-      style="position:absolute;inset:0;width:100%;height:100%;border:none;"
-      allow="autoplay; fullscreen; picture-in-picture"
-      allowfullscreen
-      title="FocusPlay — ${videoId}"
-    ></iframe>`;
-
-  const iframe = document.getElementById('inv-iframe');
-
-  iframe.addEventListener('load', () => {
-    document.getElementById('loadingOverlay').style.display = 'none';
-    document.getElementById('infoState').textContent    = '▶ يعمل';
-    document.getElementById('infoQuality').textContent  = 'Invidious';
-    addToHistory(videoId, `فيديو — ${videoId}`);
-    renderBookmarks();
-    document.getElementById('bookmarksCard').style.display = '';
-    document.getElementById('historyCard').style.display   = '';
-
-    // جيب audio stream وشغّله في الخلفية
-    fetchAndPlayAudio(videoId);
-    showToast('🎬 بدون إعلانات — Invidious 🚀', 'success');
-  });
-
-  iframe.addEventListener('error', () => tryNextInstance(videoId));
-  setTimeout(() => {
-    if (document.getElementById('loadingOverlay').style.display !== 'none')
-      tryNextInstance(videoId);
-  }, 8000);
-
-  player = {
-    playVideo:       () => { iframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}','*'); getBgAudio()?.play().catch(()=>{}); updateMediaState('playing'); },
-    pauseVideo:      () => { iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}','*'); getBgAudio()?.pause(); updateMediaState('paused'); },
-    stopVideo:       () => { iframe.contentWindow?.postMessage('{"event":"command","func":"stopVideo","args":""}','*'); getBgAudio()?.pause(); },
-    seekTo:          (t) => iframe.contentWindow?.postMessage(`{"event":"command","func":"seekTo","args":[${t},true]}`,'*'),
-    setVolume:       (v) => { const a = getBgAudio(); if(a) a.volume = v/100; },
-    mute:            () => { const a = getBgAudio(); if(a) a.muted = true; },
-    unMute:          () => { const a = getBgAudio(); if(a) a.muted = false; },
-    isMuted:         () => getBgAudio()?.muted || false,
-    setPlaybackRate: (s) => { currentSpeed = s; const a = getBgAudio(); if(a) a.playbackRate = s; reloadWithSpeed(videoId, s); },
-    getPlaybackQuality: () => 'invidious',
-    getCurrentTime:  () => getBgAudio()?.currentTime || 0,
-    getPlayerState:  () => 1,
-    getVolume:       () => (getBgAudio()?.volume || 1) * 100,
-    destroy:         () => { wrapper.innerHTML = ''; stopBgAudio(); },
-  };
 }
+
+/* ---------------------------------------------------------------
+   A4. Player Events
+--------------------------------------------------------------- */
+function onPlayerReady(event) {
+  document.getElementById('loadingOverlay').style.display = 'none';
+  event.target.playVideo();
+  if (currentSpeed !== 1) event.target.setPlaybackRate(currentSpeed);
+  updateInfoPanel();
+  qualityInterval = setInterval(updateInfoPanel, 2000);
+  const title = document.getElementById('videoTitle').textContent || `فيديو — ${currentVideoId}`;
+  addToHistory(currentVideoId, title);
+  document.getElementById('historyCard').style.display = '';
+  renderBookmarks();
+  document.getElementById('bookmarksCard').style.display = '';
+  renderPlaylist();
+  renderStats();
+  activateMediaSession(title, 'YouTube via FocusPlay');
+  showToast('🎬 الفيديو جاهز!', 'success');
+}
+
+function onPlayerStateChange(event) {
+  const states = {[-1]:'لم يبدأ',[0]:'انتهى',[1]:'▶ يعمل',[2]:'⏸ متوقف',[3]:'⏳ يحمّل',[5]:'جاهز'};
+  const el = document.getElementById('infoState');
+  if (el) el.textContent = states[event.data] ?? '—';
+  if (event.data === YT.PlayerState.PLAYING)  { updateMediaState('playing'); startAudioKeepAlive(); }
+  if (event.data === YT.PlayerState.PAUSED)   { updateMediaState('paused'); }
+  if (event.data === YT.PlayerState.ENDED)    { updateMediaState('none'); handleAudioEnded(); }
+}
+
+function onPlayerError(event) {
+  const errors = {2:'رابط غير صحيح',5:'خطأ HTML5',100:'فيديو محذوف',101:'مشاركة غير مسموحة',150:'مشاركة غير مسموحة'};
+  showToast('❌ ' + (errors[event.data] || `خطأ: ${event.data}`), 'error');
+  document.getElementById('loadingOverlay').innerHTML =
+    `<div style="color:#f87171;font-size:1.5rem">⚠️</div><p style="color:#f87171">${errors[event.data]||'خطأ غير متوقع'}</p>`;
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+/* ---------------------------------------------------------------
+   A5. Update Info Panel
+--------------------------------------------------------------- */
+function updateInfoPanel() {
+  if (!player || typeof player.getPlaybackQuality !== 'function') return;
+  const q = player.getPlaybackQuality();
+  const qMap = {'tiny':'144p','small':'240p','medium':'360p','large':'480p','hd720':'720p','hd1080':'1080p','hd1440':'1440p','hd2160':'4K','auto':'تلقائي'};
+  const el = document.getElementById('infoQuality');
+  if (el) el.textContent = qMap[q] ?? q;
+}
+
+/* ---------------------------------------------------------------
+   A6. Stubs للكود القديم اللي بيستخدم Invidious
+--------------------------------------------------------------- */
+const INVIDIOUS_INSTANCES = ['https://inv.nadeko.net','https://invidious.nerdvpn.de'];
+let instanceIndex = 0;
+function getCurrentInstance() { return INVIDIOUS_INSTANCES[0]; }
+function tryNextInstance() {}
+function getBgAudio() { return document.getElementById('bgAudio'); }
+function stopBgAudio() { const a = getBgAudio(); if(a){a.pause();a.src='';} }
+function reloadWithSpeed() {}
+function fetchAndPlayAudio() {}
+
 
 /* ---------------------------------------------------------------
    A3b. جيب audio URL من Invidious API وشغّله في <audio> حقيقي
@@ -2032,8 +2254,74 @@ function loadVideo() {
   // Smooth scroll to player
   setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
-  // Initialize player directly — Invidious doesn't need API callback
+  // Initialize player
   initPlayer(videoId);
+
+  // جيب العنوان الحقيقي من YouTube oEmbed API (مجاناً — بدون key)
+  fetchOEmbed(videoId);
+}
+
+/* ---------------------------------------------------------------
+   B2b. YouTube oEmbed — جيب العنوان واسم القناة مجاناً
+--------------------------------------------------------------- */
+async function fetchOEmbed(videoId) {
+  try {
+    const url  = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const res  = await fetch(url);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const title   = data.title        || `فيديو — ${videoId}`;
+    const channel = data.author_name  || 'YouTube';
+    const thumb   = data.thumbnail_url|| `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+    // حدّث عنوان الصفحة
+    document.title = `${title} — FocusPlay`;
+
+    // حدّث Player Header
+    document.getElementById('videoTitle').textContent = title;
+    document.getElementById('videoMeta').textContent  = `${channel} · يوتيوب`;
+
+    // حدّث MediaSession بالعنوان الحقيقي فوراً
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title,
+        artist:  channel,
+        album:   'FocusPlay',
+        artwork: [
+          { src: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,     sizes: '320x180', type: 'image/jpeg' },
+          { src: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,     sizes: '480x360', type: 'image/jpeg' },
+          { src: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`, sizes: '1280x720', type: 'image/jpeg' },
+        ],
+      });
+    }
+
+    // حدّث السجل بالعنوان الحقيقي
+    const hist = getHistory();
+    const item = hist.find(h => h.id === videoId);
+    if (item) {
+      item.title   = title;
+      item.channel = channel;
+      item.thumb   = thumb;
+      saveHistory(hist);
+      renderHistory();
+    }
+
+    // حدّث القائمة بالعنوان الحقيقي
+    const pl = getPlaylist();
+    const plItem = pl.find(v => v.id === videoId);
+    if (plItem) {
+      plItem.title   = title;
+      plItem.channel = channel;
+      plItem.thumb   = thumb;
+      savePlaylist(pl);
+      renderPlaylist();
+    }
+
+    console.log('✅ oEmbed:', title, '—', channel);
+  } catch (e) {
+    console.log('oEmbed skipped:', e.message);
+  }
 }
 
 /* ---------------------------------------------------------------
@@ -3750,9 +4038,63 @@ function renderStats() {
 
 
 /* ============================================================
-     JAVASCRIPT — SECTION G: INIT  (updated)
+     JAVASCRIPT — SECTION Y: USERNAME SYSTEM
+============================================================ */
+const USERNAME_KEY = 'focusplay_username';
+
+function getUsername() {
+  return localStorage.getItem(USERNAME_KEY) || '';
+}
+
+function saveUsername() {
+  const val = document.getElementById('usernameInput').value.trim();
+  const name = val || 'مشاهد';
+  localStorage.setItem(USERNAME_KEY, name);
+  document.getElementById('usernameModal').style.display = 'none';
+  applyUsername(name);
+  showToast(`👋 أهلاً ${name}!`, 'success');
+}
+
+function applyUsername(name) {
+  // حدّث الـ navbar بالاسم
+  const logo = document.querySelector('.logo-text');
+  if (logo) logo.innerHTML = `Focus<span>Play</span> <span style="font-size:.7rem;color:var(--muted);font-weight:400;">· ${name}</span>`;
+
+  // حدّث Hero badge
+  const badge = document.querySelector('.hero-badge');
+  if (badge) badge.innerHTML = `<div class="badge-dot"></div> أهلاً ${name} — منصة المشاهدة الذكية`;
+
+  // حدّث الإعدادات
+  const settingsFooter = document.querySelector('#settingsPanel [style*="focusplay"]')?.parentElement;
+  const usernameDisplay = document.getElementById('settingsUsername');
+  if (usernameDisplay) usernameDisplay.textContent = name;
+}
+
+function checkUsername() {
+  const name = getUsername();
+  if (name) {
+    document.getElementById('usernameModal').style.display = 'none';
+    applyUsername(name);
+  }
+  // لو مفيش اسم — المودال يفضل ظاهر
+}
+
+function changeUsername() {
+  const newName = prompt('اكتب اسمك الجديد:', getUsername());
+  if (newName && newName.trim()) {
+    localStorage.setItem(USERNAME_KEY, newName.trim());
+    applyUsername(newName.trim());
+    showToast(`✅ تم تغيير الاسم إلى ${newName.trim()}`, 'success');
+    closeSettings();
+  }
+}
+
+
+/* ============================================================
+     JAVASCRIPT — SECTION G: INIT
 ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
+  checkUsername();
   renderBandwidthCards();
   renderNotes();
   calcBandwidth();
@@ -3764,6 +4106,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHistory();
   renderPlaylist();
   renderStats();
+  // حدّث اسم المستخدم في الإعدادات
+  const name = getUsername();
+  const el = document.getElementById('settingsUsername');
+  if (el && name) el.textContent = name;
   console.log('🚀 FocusPlay v3.0 — by M O R A — initialized');
 });
 </script>
