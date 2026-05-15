@@ -1298,7 +1298,7 @@
 
   <ul class="nav-links" id="navLinks">
     <li><a href="#player-section">المشغّل</a></li>
-    <li><a href="#posts">المنشورات</a></li>
+    <li><a href="#posts">🔵 M O R A</a></li>
     <li><a href="#about">عن المنصة</a></li>
     <li><a href="#bandwidth-section">استهلاك النت</a></li>
     <li><a href="#" onclick="openSearch();return false;">🔍 بحث</a></li>
@@ -1633,39 +1633,40 @@
      POSTS SECTION
 ============================================================ -->
 <section id="posts" style="position:relative;z-index:1;max-width:700px;margin:0 auto;padding:4rem 2rem 2rem;">
-  <div style="text-align:center;margin-bottom:2rem;">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border:1px solid rgba(14,165,233,.3);border-radius:999px;background:rgba(14,165,233,.07);font-size:.78rem;color:var(--sky-400);font-weight:600;margin-bottom:1rem;">
-      <div class="badge-dot"></div> المنشورات
-    </div>
-    <h2 style="font-size:1.8rem;font-weight:900;margin-bottom:.5rem;">شارك <span style="color:var(--sky-400)">تجربتك</span></h2>
-    <p style="color:var(--muted);font-size:.88rem;">شارك فيديو، فكرة، أو توصية مع المجتمع 💬</p>
-  </div>
 
-  <!-- Post Composer -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.25rem;margin-bottom:1.5rem;transition:border-color var(--t-med);" id="postComposer">
-    <div style="display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.75rem;">
-      <div id="composerAvatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--sky-600),var(--sky-400));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden;"></div>
-      <textarea id="postInput" placeholder="شارك فيديو أو فكرة… يمكنك إضافة رابط يوتيوب 🎬"
-        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.75rem 1rem;color:var(--text);font-family:var(--font-ui);font-size:.88rem;resize:none;outline:none;min-height:80px;direction:rtl;line-height:1.6;transition:border-color var(--t-fast);"
-        oninput="this.style.borderColor='var(--sky-500)';updatePostPreview(this.value)"
-        rows="3"></textarea>
+  <!-- Designer Credit -->
+  <div style="text-align:center;margin-bottom:3rem;">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border:1px solid rgba(14,165,233,.3);border-radius:999px;background:rgba(14,165,233,.07);font-size:.78rem;color:var(--sky-400);font-weight:600;margin-bottom:1.25rem;">
+      <div class="badge-dot"></div> مصمم الموقع
     </div>
-    <!-- Post Preview -->
-    <div id="postVideoPreview" style="display:none;background:var(--surface2);border-radius:12px;padding:.75rem;margin-bottom:.75rem;display:none;align-items:center;gap:.75rem;">
-      <img id="postThumb" src="" style="width:80px;height:45px;border-radius:6px;object-fit:cover;" />
-      <div>
-        <div id="postPreviewTitle" style="font-size:.8rem;font-weight:600;color:var(--text);"></div>
-        <div style="font-size:.72rem;color:var(--sky-400);">🎬 يوتيوب</div>
-      </div>
+
+    <div style="margin-bottom:.75rem;">
+      <span style="font-size:clamp(2rem,6vw,3.5rem);font-weight:900;letter-spacing:8px;
+        background:linear-gradient(135deg,var(--sky-400),var(--sky-300),var(--sky-400));
+        background-size:200% auto;
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+        animation:moraShine 3s linear infinite;display:inline-block;">
+        M O R A
+      </span>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span id="postCharCount" style="font-size:.72rem;color:var(--slate-600);">0 / 280</span>
-      <button onclick="publishPost()" style="padding:8px 20px;background:linear-gradient(135deg,var(--sky-600),var(--sky-500));border:none;border-radius:10px;color:#fff;font-family:var(--font-ui);font-size:.85rem;font-weight:700;cursor:pointer;">نشر 🚀</button>
+
+    <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;">
+      <span style="font-size:.82rem;color:var(--muted);">طالب نظم ومعلومات</span>
+      <span style="color:var(--border);">·</span>
+      <span style="font-size:.82rem;color:var(--muted);">مطوّر Frontend</span>
+      <span style="color:var(--border);">·</span>
+      <span style="font-size:.82rem;color:var(--sky-400);font-weight:600;">🔵 FocusPlay 2026</span>
     </div>
   </div>
 
-  <!-- Posts Feed -->
-  <div id="postsFeed"></div>
+  <style>
+    @keyframes moraShine {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+  </style>
+
+  <!-- Posts Feed removed — designer credit only -->
 </section>
 
 <!-- ============================================================
@@ -2059,7 +2060,7 @@ function tryNextInstance() {}
 function getBgAudio() { return document.getElementById('bgAudio'); }
 function stopBgAudio() { const a = getBgAudio(); if(a){a.pause();a.src='';} }
 function reloadWithSpeed() {}
-function fetchAndPlayAudio() {}
+function fetchAndPlayAudio() {} // stub — not used with YouTube IFrame API
 
 
 /* ---------------------------------------------------------------
@@ -2935,27 +2936,24 @@ function updateMediaState(state) {
    alive even when the YT iframe is paused/muted.
 --------------------------------------------------------------- */
 function startAudioKeepAlive() {
-  // الآن الـ bgAudio بيشغّل stream حقيقي — مش محتاجين keep-alive وهمي
-  const audio = getBgAudio();
-  if (audio && audio.src && audio.paused) {
-    audio.play().catch(() => {});
-  }
+  // MediaSession بيشتغل من خلال YouTube IFrame نفسه — مش محتاج audio خارجي
+  updateMediaState('playing');
 }
 
-/* ---------------------------------------------------------------
-   K3b. Audio event handlers
---------------------------------------------------------------- */
 function handleAudioEnded() {
   updateMediaState('none');
-  document.getElementById('infoState').textContent = 'انتهى الفيديو';
+  const el = document.getElementById('infoState');
+  if (el) el.textContent = 'انتهى الفيديو';
+  // Auto-play next in playlist
+  const pl = getPlaylist();
+  if (pl.length > 1 || repeatOn) {
+    setTimeout(() => repeatOn ? playFromPlaylist(playlistIndex) : playNext(), 1500);
+  }
 }
 
 function handleAudioError() {
-  console.warn('⚠️ Background audio error — stream may have expired');
-  // أعد جلب الـ stream لو انتهت صلاحيته
-  if (currentVideoId) {
-    setTimeout(() => fetchAndPlayAudio(currentVideoId), 2000);
-  }
+  // لا نفعل شيئاً — YouTube IFrame بيتحكم في الصوت
+  console.log('bgAudio not in use');
 }
 
 /* ---------------------------------------------------------------
@@ -3806,25 +3804,15 @@ ${notes.map(n => `<div class="note"><p>${n.text}</p><div class="ts">${n.ts}</div
 let miniPlayerActive = false;
 let miniPaused       = false;
 
-/* Show mini player when user scrolls past the main player */
-window.addEventListener('scroll', () => {
-  const section = document.getElementById('player-section');
-  if (!section || !currentVideoId) return;
-  const rect = section.getBoundingClientRect();
-  if (rect.bottom < 0 && !miniPlayerActive) {
-    showMiniPlayer();
-  } else if (rect.bottom >= 0 && miniPlayerActive) {
-    hideMiniPlayer();
-  }
-}, { passive: true });
+/* Mini Player scroll disabled */
 
 function showMiniPlayer() {
   if (!currentVideoId) return;
   miniPlayerActive = true;
-  const mp    = document.getElementById('miniPlayer');
-  const base  = getCurrentInstance();
+  const mp = document.getElementById('miniPlayer');
+  // YouTube embed مباشرة — مش Invidious
   document.getElementById('miniPlayerVideo').innerHTML = `
-    <iframe src="${base}/embed/${currentVideoId}?autoplay=1&mute=0"
+    <iframe src="https://www.youtube.com/embed/${currentVideoId}?autoplay=1&mute=0&enablejsapi=1"
       style="width:100%;height:100%;border:none;"
       allow="autoplay; fullscreen" allowfullscreen></iframe>`;
   document.getElementById('miniTitle').textContent =
